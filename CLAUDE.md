@@ -12,9 +12,33 @@ comunicación.
 
 El plan completo, alcance por fases y criterios de aceptación están en [SPEC.md](SPEC.md).
 
-- **Moneda:** Guaraníes (Gs).
-- **Identificación única de alumno:** número de cédula.
+- **Marca inicial:** Santosha (Paraguay). Moneda por defecto: Guaraníes (Gs) — pero
+  **configurable**, ver "Arquitectura white-label".
+- **Identificación única de alumno:** por **`email`** (unique en DB). El número de
+  identidad (`identity_number`, genérico) es secundario y opcional.
 - **Referencias de diseño:** asanagroove.com (landing), theyogaclubbarcelona.com (calendario semanal).
+
+## Arquitectura white-label / API (IMPORTANTE)
+
+La plataforma puede venderse como **white-label** a otras marcas y a futuro un **bot AI**
+cubrirá ~99% de un rol de agendamiento/coordinación. Reglas transversales:
+
+- **Nada específico de Santosha/Paraguay hardcodeado.** Nombres de dominio genéricos:
+  `identity_number` (no `cedula`), etc.
+- **Moneda y precios configurables.** No asumir Guaraníes. Dinero = **enteros en unidad
+  mínima** + `currency_code`, con decimales/locale por **configuración** (Guaraní usa 0
+  decimales; otras monedas, 2). Nunca una constante de moneda en el código de dominio.
+- **Identidad:** ficha única por `email`. `identity_number` es **nullable** y su
+  **unicidad se valida en código** (validation rule), no como índice duro — en otras
+  marcas puede no existir.
+- **Multi-tenancy:** por ahora **genérico, una marca por deploy** (sin `tenant_id`).
+  Diseñar con nombres/estructura que no impidan migrar a multi-tenant real más adelante.
+- **Lógica de negocio en `app/Actions` o `app/Services`,** reutilizable por Filament
+  **y** por la futura API. Los Resources de Filament y (luego) los controllers de API
+  solo orquestan; no contienen reglas de negocio.
+- **API + MCP:** la API REST (Sanctum) y el servidor MCP encima se construyen **más
+  adelante** (cuando exista el dominio de agenda, ~tras Fase 5/6). Hasta entonces, la
+  disciplina de services/actions deja todo listo para exponerlo sin refactor.
 
 ## Convención de idioma (IMPORTANTE)
 
@@ -100,7 +124,7 @@ identificador en inglés. Solo los roles de **staff** (`practitioner`, `receptio
 | Salas                         | `Room`                                                        |
 | Actividades / prácticas       | `Activity` / `Practice` / `Session`                          |
 | Profesionales / terapeutas    | `Practitioner`                                               |
-| Clientes / alumnos            | `Student` (ficha única por cédula)                           |
+| Clientes / alumnos            | `Student` (ficha única por email; `identity_number` opcional) |
 | Membresías y pases            | `Membership`, `Pass` (Prueba gratuita, Ciudadano 4, Comunidad 12, República ilimitada) |
 | Agendamientos grupales        | `GroupClass` / `Booking` (cupos, saldo, política de cancelación) |
 | Acompañamientos individuales  | `Appointment`                                               |
