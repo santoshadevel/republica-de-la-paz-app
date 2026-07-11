@@ -63,8 +63,10 @@ espera a MySQL y corre migraciones automáticamente al levantar el contenedor `a
   (`docker compose exec app ./vendor/bin/pint`).
 - Modelos en singular (`Student`, `Membership`), tablas en plural snake_case
   (`students`, `memberships`), pivotes en orden alfabético (`practitioner_room`).
-- Permisos por **roles usando Gates/Policies de Laravel** (no un paquete externo salvo
-  que se decida lo contrario). Una Policy por módulo.
+- Permisos por **roles con `spatie/laravel-permission`** (estándar de la comunidad,
+  integra con los Gates de Laravel: `$user->can()`, `@can`, Policies siguen funcionando).
+  Un usuario puede tener **varios roles** (relación muchos-a-muchos). El enum
+  `App\Enums\Role` es la única fuente de verdad de las claves de rol. Una Policy por módulo.
 - Reglas de negocio con lógica temporal (saldo, cancelaciones, cupos) van en
   services/actions dedicados, no en los controllers ni en los recursos de Filament.
   Cuidar concurrencia en el descuento de cupos.
@@ -72,18 +74,24 @@ espera a MySQL y corre migraciones automáticamente al levantar el contenedor `a
 
 ## Roles
 
-Cinco roles. En la UI se muestran en español; en código se usa el identificador en inglés.
+**Cuatro roles** (el rol `director` se pospone). Un usuario puede tener **varios roles**.
+En la UI se muestran en español (ver `App\Enums\Role::label()`); en código se usa el
+identificador en inglés. Solo los roles de **staff** (`practitioner`, `receptionist`,
+`admin`, definidos en `Role::STAFF`) acceden al panel Filament; el `student` no.
 
 | Rol (UI)            | Identificador | Descripción |
 |---------------------|---------------|-------------|
-| Alumno              | `student`     | Miembro de la República. Tiene ficha única identificada por cédula. Compra membresías/pases, reserva prácticas grupales, agenda acompañamientos individuales y se inscribe a eventos. Consume y ve su propio saldo de prácticas; acceso limitado a sus propios datos. |
+| Alumno              | `student`     | Miembro de la República. Tiene ficha única identificada por cédula. Compra membresías/pases, reserva prácticas grupales, agenda acompañamientos individuales y se inscribe a eventos. Consume y ve su propio saldo de prácticas; acceso limitado a sus propios datos. **No entra al panel admin.** |
 | Profesional         | `practitioner`| Profesor/a o terapeuta que imparte prácticas grupales, acompañamientos individuales y eventos. Ve su agenda y las reservas de sus clases; registra asistencia. Base para la liquidación de honorarios (esquema fijo o % por servicio). No accede a contabilidad global. |
 | Recepción           | `receptionist`| Personal de mostrador para la operación diaria. Gestiona alumnos (alta/edición de fichas), vende membresías y pases, cobra y registra pagos, hace reservas y cancelaciones en nombre del alumno, y consulta el dashboard operativo del día. No accede a reportes financieros ni configuración. |
 | Administración      | `admin`       | Gestión completa del sistema: configura salas, actividades, profesionales, membresías/pases, métodos de pago, categorías contables y centros de costo. Accede a CRM, agendamientos, contabilidad completa (ingresos/egresos, caja, facturación), reportes y liquidación de honorarios. |
-| Directora           | `director`    | Dirección del centro. Visión total del negocio: dashboards estratégicos (estado del negocio/mes), reportes financieros y de gestión, liquidaciones. Acceso de solo lectura amplio más las decisiones de alto nivel; puede tener las mismas capacidades que `admin` según se defina. |
 
-> Los permisos concretos por módulo se implementan con Gates/Policies en la **Fase 1**.
-> El detalle fino (qué puede ver/editar cada rol en cada módulo) se refinará ahí.
+> `director` pospuesto: si se retoma, sería dirección con visión total del negocio
+> (dashboards estratégicos, reportes, liquidaciones), potencialmente equiparable a `admin`.
+>
+> Los roles se siembran con `RoleSeeder`. Los permisos finos por módulo (qué puede
+> ver/editar cada rol) se implementan con Policies/permisos de spatie a medida que se
+> construye cada módulo.
 
 ## Módulos (y su nombre en código)
 
