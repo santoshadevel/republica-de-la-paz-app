@@ -53,7 +53,7 @@ Tipos de yoga mencionados: Hatha, Vinyasa, Hatha Vinyasa, Yogafitness, Aero, Slo
 
 ### 1.4 Consultas y Acompañamientos Individuales
 Especialidades (landing): Reiki, Sound Healing Individual, Medicina Ayurvédica, Masaje Ayurvédico, Fisioterapia, Psicología, Tarot, Diseño Humano.
-- [~] Cada especialidad muestra: descripción breve, **profesional responsable**, duración, botón de reserva. — _Fase 6 (relación profesional↔especialidad ya modelada en Fase 3 vía pivote `activity_practitioner`)_
+- [~] Cada especialidad muestra: descripción breve, **profesional responsable**, duración, botón de reserva. — _Fase 6 (dominio + agenda admin listos; vista pública de reserva → Fase 9)_
 
 ### 1.5 Referentes de la República (equipo)
 - [ ] Perfiles con disciplinas + biografía breve: — _Fase 3 (datos) / Fase 9 (landing)_
@@ -124,15 +124,15 @@ Especialidades (landing): Reiki, Sound Healing Individual, Medicina Ayurvédica,
 
 ### 2.5 Reserva de Acompañamientos Individuales
 Ejemplos: Psicología, Reiki, Sound Healing, KAP, Medicina Ayurvédica, Masaje Ayurvédico, Fisioterapia, Tarot, Diseño Humano, Yoga Terapéutico.
-- [ ] Al seleccionar: profesional, descripción, duración, agenda disponible, días/horarios libres → confirmar. — _Fase 6_
-- [ ] **Cancelación:** hasta 24 h antes sin costo; con <24 h se cobra **50%**. — _Fase 6_
+- [~] Al seleccionar: profesional, descripción, duración, agenda disponible, días/horarios libres → confirmar. — _Fase 6_ · _Dominio + reserva admin listos (Appointment slots + BookAppointment); vista/selección del alumno → Fase 9._
+- [x] **Cancelación:** hasta 24 h antes sin costo; con <24 h se cobra **50%** (`CancelAppointment`, config/booking.php). — _Fase 6_
 
 ### 2.6 Gestión de agendas (individuales)
-- [ ] Agendas administradas **exclusivamente por admin**: crear/modificar/bloquear horarios, reprogramar, cancelar sesiones. — _Fase 6_
-- [ ] Profesionales **no** modifican su agenda; sí ven panel con: próximos agendamientos, historial, info básica del alumno (según permisos). — _Fase 6_
+- [x] Agendas administradas **exclusivamente por admin**: crear/modificar/bloquear horarios, reprogramar, cancelar sesiones (AppointmentResource: estados available/booked/blocked/completed/cancelled). — _Fase 6_
+- [ ] Profesionales **no** modifican su agenda; sí ven panel con: próximos agendamientos, historial, info básica del alumno (según permisos). — _Fase 6 (panel de rol profesional + policies → pendiente)_
 
 ### 2.7 Reserva de Eventos
-- [ ] Cada evento muestra: imagen, nombre, fecha, horario, lugar, facilitador(es), descripción, precio (si aplica), cupos, botón "Reservar". — _Fase 6_
+- [~] Cada evento muestra: imagen, nombre, fecha, horario, lugar, facilitador(es), descripción, precio (si aplica), cupos, botón "Reservar". — _Fase 6_ · _Event + inscripciones + cupo + facilitadores + imagen (admin) listos; vista/reserva del alumno → Fase 9._
 
 ### 2.8 Mis Reservas
 - [ ] Próximas reservas (fecha, hora, actividad, facilitador). — _Fase 5_
@@ -149,8 +149,8 @@ Ejemplos: Psicología, Reiki, Sound Healing, KAP, Medicina Ayurvédica, Masaje A
 ### 2.11 Panel Administrativo (agendamiento)
 - [~] **Alumnos:** crear/editar, historial completo, reservas activas, asistencias, cancelaciones, **agregar/descontar prácticas manualmente**, asignar/modificar pases. — _Fase 3/4_ · _Hecho: crear/editar, asignar pase (vender) y ajuste manual de créditos desde la ficha; reservas/asistencias/cancelaciones → Fases 5/6._
 - [~] **Prácticas grupales:** crear prácticas/horarios, modificar, asignar facilitadores, configurar cupos, registrar asistencia, listado de inscriptos. — _Fase 5_ · _Hecho: ScheduledSessionResource (crear/editar sesión, facilitador, sala, cupo, estado) + roster (reservar en nombre, cancelar, asistencia). Pendiente: generador de horario semanal recurrente (plantilla→ocurrencias)._
-- [ ] **Acompañamientos:** crear/modificar/bloquear agendas, reprogramar, cancelar, ver agenda de todos los profesionales. — _Fase 6_
-- [ ] **Eventos:** crear, editar, definir cupos, gestionar inscripciones, registrar asistencia. — _Fase 6_
+- [x] **Acompañamientos:** crear/modificar/bloquear agendas, reprogramar, cancelar, ver agenda de todos los profesionales. — _Fase 6_
+- [x] **Eventos:** crear, editar, definir cupos, gestionar inscripciones, registrar asistencia. — _Fase 6_
 - [ ] **Reportes:** reservas por práctica, asistentes, ocupación, historial por alumno/profesional, estadísticas de uso de pases. — _Fase 8_
 
 ---
