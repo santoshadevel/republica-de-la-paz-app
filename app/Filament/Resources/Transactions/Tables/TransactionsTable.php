@@ -42,6 +42,10 @@ class TransactionsTable
                 TextColumn::make('paymentMethod.name')
                     ->label('Método')
                     ->placeholder('—'),
+                TextColumn::make('account.name')
+                    ->label('Caja / cuenta')
+                    ->placeholder('—')
+                    ->toggleable(),
                 TextColumn::make('amount')
                     ->label('Monto')
                     ->sortable(),

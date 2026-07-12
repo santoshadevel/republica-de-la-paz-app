@@ -26,6 +26,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'category_id',
     'cost_center_id',
     'payment_method_id',
+    'account_id',
     'source_type',
     'source_id',
     'invoice_issued',
@@ -63,6 +64,12 @@ class Transaction extends Model
     public function paymentMethod(): BelongsTo
     {
         return $this->belongsTo(PaymentMethod::class);
+    }
+
+    /** The account the money entered / left. */
+    public function account(): BelongsTo
+    {
+        return $this->belongsTo(Account::class);
     }
 
     /** The record that generated this movement (membership sale, event, etc.). */

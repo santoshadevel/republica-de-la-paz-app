@@ -7,6 +7,7 @@ use App\Models\PaymentMethod;
 use BackedEnum;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
@@ -38,6 +39,12 @@ class PaymentMethodResource extends Resource
                 ->required()
                 ->maxLength(255)
                 ->unique(ignoreRecord: true),
+            Select::make('default_account_id')
+                ->label('Cuenta por defecto')
+                ->relationship('defaultAccount', 'name')
+                ->searchable()
+                ->preload()
+                ->helperText('El dinero cobrado con este método entra a esta caja/cuenta.'),
             Toggle::make('is_active')
                 ->label('Activo')
                 ->default(true),

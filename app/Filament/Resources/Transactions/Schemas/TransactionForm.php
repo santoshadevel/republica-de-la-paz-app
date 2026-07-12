@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Transactions\Schemas;
 
 use App\Enums\TransactionType;
 use App\Models\Category;
+use App\Models\PaymentMethod;
 use App\Support\Money;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -63,7 +64,21 @@ class TransactionForm
                     ->label('Método de pago')
                     ->relationship('paymentMethod', 'name')
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    ->live()
+                    // Prefill the account from the payment method's default.
+                    ->afterStateUpdated(function ($state, callable $set) {
+                        $account = $state ? PaymentMethod::find($state)?->default_account_id : null;
+                        if ($account) {
+                            $set('account_id', $account);
+                        }
+                    }),
+                Select::make('account_id')
+                    ->label('Caja / cuenta')
+                    ->relationship('account', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->helperText('De dónde entra o sale el dinero.'),
                 Textarea::make('description')
                     ->label('Descripción')
                     ->columnSpanFull(),

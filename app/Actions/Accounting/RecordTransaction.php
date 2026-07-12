@@ -3,6 +3,7 @@
 namespace App\Actions\Accounting;
 
 use App\Enums\TransactionType;
+use App\Models\Account;
 use App\Models\Category;
 use App\Models\CostCenter;
 use App\Models\PaymentMethod;
@@ -27,8 +28,12 @@ class RecordTransaction
         ?CostCenter $costCenter = null,
         ?PaymentMethod $paymentMethod = null,
         ?Model $source = null,
+        ?Account $account = null,
         array $attributes = [],
     ): Transaction {
+        // Route to the payment method's default account when none is given.
+        $account ??= $paymentMethod?->defaultAccount;
+
         $transaction = new Transaction(array_merge([
             'type' => $type,
             'amount' => $amount->minorAmount,
@@ -36,6 +41,7 @@ class RecordTransaction
             'category_id' => $category?->getKey(),
             'cost_center_id' => $costCenter?->getKey(),
             'payment_method_id' => $paymentMethod?->getKey(),
+            'account_id' => $account?->getKey(),
         ], collect($attributes)->except('occurred_on')->all()));
 
         if ($source !== null) {

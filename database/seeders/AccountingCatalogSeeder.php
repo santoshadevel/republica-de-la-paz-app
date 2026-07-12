@@ -2,7 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Enums\AccountType;
 use App\Enums\TransactionType;
+use App\Models\Account;
 use App\Models\Category;
 use App\Models\CostCenter;
 use App\Models\PaymentMethod;
@@ -40,8 +42,27 @@ class AccountingCatalogSeeder extends Seeder
             CostCenter::updateOrCreate(['name' => $name], ['is_active' => true]);
         }
 
-        foreach (['Efectivo', 'Transferencia bancaria', 'Bancard POS', 'Tarjeta de crédito', 'Tarjeta de débito'] as $name) {
-            PaymentMethod::updateOrCreate(['name' => $name], ['is_active' => true]);
+        // Accounts / cash boxes where money actually sits.
+        $cashBox = Account::updateOrCreate(['name' => 'Caja chica'], ['type' => AccountType::Cash->value]);
+        $bank = Account::updateOrCreate(
+            ['name' => 'Cuenta Banco 0082'],
+            ['type' => AccountType::Bank->value, 'account_number' => '0082'],
+        );
+
+        // Payment methods, each routed to the account its money lands in.
+        $methods = [
+            'Efectivo' => $cashBox,
+            'Transferencia bancaria' => $bank,
+            'Bancard POS' => $bank,
+            'Tarjeta de crédito' => $bank,
+            'Tarjeta de débito' => $bank,
+        ];
+
+        foreach ($methods as $name => $account) {
+            PaymentMethod::updateOrCreate(
+                ['name' => $name],
+                ['is_active' => true, 'default_account_id' => $account->id],
+            );
         }
     }
 
