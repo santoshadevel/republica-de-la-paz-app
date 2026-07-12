@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             ActivitySeeder::class,
             RoomSeeder::class,
             PractitionerSeeder::class,
+            AccountingCatalogSeeder::class,
         ]);
 
         $admin = User::firstOrCreate(

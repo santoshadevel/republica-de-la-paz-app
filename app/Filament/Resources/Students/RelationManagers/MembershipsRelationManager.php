@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Students\RelationManagers;
 use App\Actions\Memberships\AdjustMembershipCredits;
 use App\Actions\Memberships\SellMembership;
 use App\Models\MembershipPlan;
+use App\Models\PaymentMethod;
 use App\Models\StudentMembership;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
@@ -69,14 +70,22 @@ class MembershipsRelationManager extends RelationManager
                             ->label('Inicio de vigencia')
                             ->native(false)
                             ->default(now()),
+                        Select::make('payment_method_id')
+                            ->label('Método de pago')
+                            ->options(fn () => PaymentMethod::query()->where('is_active', true)->pluck('name', 'id'))
+                            ->helperText('Registra el ingreso en contabilidad.'),
                     ])
                     ->action(function (array $data): void {
                         $plan = MembershipPlan::findOrFail($data['membership_plan_id']);
+                        $paymentMethod = filled($data['payment_method_id'] ?? null)
+                            ? PaymentMethod::find($data['payment_method_id'])
+                            : null;
 
                         app(SellMembership::class)->execute(
                             $this->getOwnerRecord(),
                             $plan,
                             filled($data['starts_at'] ?? null) ? Carbon::parse($data['starts_at']) : null,
+                            $paymentMethod,
                         );
                     }),
             ])

@@ -2,17 +2,23 @@
 
 namespace App\Actions\Memberships;
 
+use App\Actions\Accounting\RecordTransaction;
 use App\Enums\CreditMovementType;
 use App\Enums\MembershipStatus;
+use App\Enums\TransactionType;
+use App\Models\Category;
 use App\Models\MembershipPlan;
+use App\Models\PaymentMethod;
 use App\Models\Student;
 use App\Models\StudentMembership;
+use App\Support\Money;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 /**
  * Sell a membership plan to a student: snapshot the plan, open the validity
- * window and seed the credit ledger with the granted credits.
+ * window and seed the credit ledger with the granted credits. If a payment
+ * method is given, it also records the income transaction (accounting).
  *
  * Reusable by Filament and the future API. See docs/MODULO_MEMBRESIAS.md.
  */
@@ -25,9 +31,10 @@ class SellMembership
         Student $student,
         MembershipPlan $plan,
         ?Carbon $startsAt = null,
+        ?PaymentMethod $paymentMethod = null,
         array $attributes = [],
     ): StudentMembership {
-        return DB::transaction(function () use ($student, $plan, $startsAt, $attributes) {
+        return DB::transaction(function () use ($student, $plan, $startsAt, $paymentMethod, $attributes) {
             $startsAt = ($startsAt ?? now())->startOfDay();
             $validityDays = $plan->validityDays() ?? 0;
             $creditsTotal = $plan->credits();
@@ -54,10 +61,35 @@ class SellMembership
                 ]);
             }
 
-            // Fase 7: registrar aquí el ingreso contable (Transaction) — este es el
-            // único punto de la venta, así el asiento se agrega sin refactor.
+            // Accounting: record the income for this sale (only when we know how
+            // it was paid). Category resolved to the "Membresías" income tree.
+            if ($paymentMethod !== null && ($plan->price?->minorAmount ?? 0) > 0) {
+                app(RecordTransaction::class)->execute(
+                    type: TransactionType::Income,
+                    amount: Money::ofMinor($membership->price_paid->minorAmount, $membership->currency_code),
+                    category: $this->incomeCategory($plan),
+                    paymentMethod: $paymentMethod,
+                    source: $membership,
+                    attributes: [
+                        'description' => "Venta de {$plan->name}",
+                        'occurred_on' => $startsAt->toDateString(),
+                    ],
+                );
+            }
 
             return $membership;
         });
+    }
+
+    /** The income category for a membership sale (subcategory by plan name, else the parent). */
+    private function incomeCategory(MembershipPlan $plan): ?Category
+    {
+        $parent = Category::query()->income()->whereNull('parent_id')->where('name', 'Membresías')->first();
+
+        if ($parent === null) {
+            return null;
+        }
+
+        return $parent->children()->where('name', $plan->name)->first() ?? $parent;
     }
 }

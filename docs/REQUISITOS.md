@@ -162,7 +162,7 @@ Ejemplos: Psicología, Reiki, Sound Healing, KAP, Medicina Ayurvédica, Masaje A
 - [ ] Historiales agregados: compras, clases, sesiones individuales, eventos, pagos. — _Fase 3+_
 
 ### 3.2 Membresías conectadas
-- [~] Vender membresía dispara automáticamente: registrar ingreso contable, actualizar CRM, habilitar N prácticas, dejar al alumno listo para reservar. Saldo 12→11 al reservar, 11→12 al cancelar a tiempo. — _Fase 4_ · _Hecho: `SellMembership` habilita N créditos + CRM (ficha). Pendiente: ingreso contable (hook → Fase 7); 12→11 / 11→12 por reserva (Fase 5)._
+- [x] Vender membresía dispara automáticamente: registrar ingreso contable, actualizar CRM, habilitar N prácticas, dejar al alumno listo para reservar. Saldo 12→11 al reservar, 11→12 al cancelar a tiempo. — _Fase 4/5/7_ · _`SellMembership` habilita créditos + CRM + registra el ingreso (con método de pago); 12→11 / 11→12 por reserva (Fase 5)._
 
 ### 3.3 Agendamientos consultan saldo
 - [ ] Con saldo → reserva; sin saldo → "No tienes un pase vigente." — _Fase 5_
@@ -175,26 +175,26 @@ Ejemplos: Psicología, Reiki, Sound Healing, KAP, Medicina Ayurvédica, Masaje A
 ## 4. Módulo Administrativo y Contable (págs. 22–32)
 
 ### 4.1 Ingresos — clasificación
-- [ ] Cada ingreso con **categoría + subcategoría + unidad de negocio (centro de costo)**. — _Fase 7_
+- [x] Cada ingreso con **categoría + subcategoría + unidad de negocio (centro de costo)**. — _Fase 7_ · _Transaction genérica (income/expense) + Category jerárquica + CostCenter + PaymentMethod._
 
 Categorías de ingreso (a sembrar): **Membresías** (República, Comunidad, Ciudadano, Prueba) · **Acompañamientos** (Psicología, Reiki, KAP, Sound Healing, Tarot, Diseño Humano, Med. Ayurvédica, Masaje Ayurvédico, Fisioterapia) · **Eventos** (Workshops, Retiros, Charlas, Formaciones, Círculos) · **Alquiler de espacios** _(2ª etapa)_ · **Tienda** _(2ª etapa)_ · **Café** _(2ª etapa)_.
 
 ### 4.2 Egresos — clasificación
-- [ ] Categorías de egreso (a sembrar): **Honorarios** (profesores, terapeutas, facilitadores invitados, recepcionista, directoras) · **Infraestructura** (alquiler, electricidad, agua, internet, celular, limpieza, seguridad) · **Marketing** (redes, diseño, publicidad, foto/audiovisual, web) · **Administración** (papelería, software, dominio, hosting, licencias) · **Mantenimiento** (reparaciones, pintura, jardinería, equipamiento) · **Compras** (material de yoga, equipamiento, decoración) · **Impuestos** (IVA, IRP, otros) · **Gastos bancarios** (comisiones, transferencias, POS, Bancard). — _Fase 7_
+- [x] Categorías de egreso (a sembrar): **Honorarios** (profesores, terapeutas, facilitadores invitados, recepcionista, directoras) · **Infraestructura** (alquiler, electricidad, agua, internet, celular, limpieza, seguridad) · **Marketing** (redes, diseño, publicidad, foto/audiovisual, web) · **Administración** (papelería, software, dominio, hosting, licencias) · **Mantenimiento** (reparaciones, pintura, jardinería, equipamiento) · **Compras** (material de yoga, equipamiento, decoración) · **Impuestos** (IVA, IRP, otros) · **Gastos bancarios** (comisiones, transferencias, POS, Bancard). — _Fase 7 (sembrado por AccountingCatalogSeeder)_
 
 ### 4.3 Centros de Costo
-- [ ] Asignar ingreso/gasto a una unidad: Yoga, Terapias, Eventos, Tienda, Café, Administración. — _Fase 7_
+- [x] Asignar ingreso/gasto a una unidad: Yoga, Terapias, Eventos, Tienda, Café, Administración. — _Fase 7_
 
 ### 4.4 Métodos de Pago
-- [ ] Efectivo, transferencia bancaria, Bancard POS, tarjeta crédito, tarjeta débito (para conciliar caja). — _Fase 7_
+- [x] Efectivo, transferencia bancaria, Bancard POS, tarjeta crédito, tarjeta débito (para conciliar caja). — _Fase 7_
 
 ### 4.5 Facturación
 > **Decisión white-label (SPEC.md):** modelar genérico (`tax_id`, `tax_condition`, módulo activable), no "RUC/IVA" fijos.
-- [ ] Por venta: ¿se emitió factura?, N° de factura, nombre/razón social, RUC (tax_id), condición IVA (tax_condition). — _Fase 7_
-- [ ] Exportar reporte para el contador. — _Fase 7/8_
+- [x] Por venta: ¿se emitió factura?, N° de factura, nombre/razón social, RUC (tax_id), condición IVA (tax_condition). — _Fase 7 (campos invoice_* en Transaction)_
+- [ ] Exportar reporte para el contador. — _Fase 8 (reportes)_
 
 ### 4.6 Caja
-- [ ] Caja inicial + ingresos − egresos = caja disponible, filtrable por fecha. — _Fase 7_
+- [~] Caja inicial + ingresos − egresos = caja disponible, filtrable por fecha. — _Fase 7_ · _Resumen del mes (widget CashSummary) + filtro por fechas en Movimientos; caja inicial y conciliación completa → Fase 8._
 
 ### 4.7 Dashboard Administrativo
 - [ ] **Resumen del día:** alumnos asistiendo, prácticas, acompañamientos, eventos, ingresos, egresos, saldo del día. — _Fase 8_
