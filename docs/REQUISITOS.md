@@ -89,8 +89,8 @@ Especialidades (landing): Reiki, Sound Healing Individual, Medicina Ayurvédica,
 > **Decisión (ver SPEC.md):** el autoservicio del alumno vive en el **frontend público con login**, no en un panel Filament de alumno.
 
 ### 2.1 Perfil del Alumno
-- [ ] Muestra: nombre, contacto, membresía/pase activo, fecha inicio y **vencimiento** del pase. — _Fase 3/4_
-- [ ] Muestra saldo: prácticas disponibles del mes, utilizadas, restantes. — _Fase 4_
+- [~] Muestra: nombre, contacto, membresía/pase activo, fecha inicio y **vencimiento** del pase. — _Fase 3/4_ · _Datos + ficha admin listos (`currentMembership`); perfil de cara al alumno en el front público → Fase 9._
+- [~] Muestra saldo: prácticas disponibles del mes, utilizadas, restantes. — _Fase 4_ · _Saldo (`creditsRemaining`/`creditsConsumed`) visible en la ficha admin; vista alumno → Fase 9._
 - [ ] Historial de reservas, de cancelaciones. — _Fase 5_
 - [ ] Historial de pagos _(opcional 2ª etapa)_. — _Futuro_
 
@@ -146,7 +146,7 @@ Ejemplos: Psicología, Reiki, Sound Healing, KAP, Medicina Ayurvédica, Masaje A
 - [ ] Solo reservan con pase/membresía vigente; sin saldo no se reserva (salvo ilimitada); no superar cupos; reintegro >1 h; sin reintegro fuera de plazo; **registrar asistencia** siempre. — _Fase 5/6_
 
 ### 2.11 Panel Administrativo (agendamiento)
-- [ ] **Alumnos:** crear/editar, historial completo, reservas activas, asistencias, cancelaciones, **agregar/descontar prácticas manualmente**, asignar/modificar pases. — _Fase 3/4_
+- [~] **Alumnos:** crear/editar, historial completo, reservas activas, asistencias, cancelaciones, **agregar/descontar prácticas manualmente**, asignar/modificar pases. — _Fase 3/4_ · _Hecho: crear/editar, asignar pase (vender) y ajuste manual de créditos desde la ficha; reservas/asistencias/cancelaciones → Fases 5/6._
 - [ ] **Prácticas grupales:** crear prácticas/horarios, modificar, asignar facilitadores, configurar cupos, registrar asistencia, listado de inscriptos. — _Fase 5_
 - [ ] **Acompañamientos:** crear/modificar/bloquear agendas, reprogramar, cancelar, ver agenda de todos los profesionales. — _Fase 6_
 - [ ] **Eventos:** crear, editar, definir cupos, gestionar inscripciones, registrar asistencia. — _Fase 6_
@@ -161,7 +161,7 @@ Ejemplos: Psicología, Reiki, Sound Healing, KAP, Medicina Ayurvédica, Masaje A
 - [ ] Historiales agregados: compras, clases, sesiones individuales, eventos, pagos. — _Fase 3+_
 
 ### 3.2 Membresías conectadas
-- [ ] Vender membresía dispara automáticamente: registrar ingreso contable, actualizar CRM, habilitar N prácticas, dejar al alumno listo para reservar. Saldo 12→11 al reservar, 11→12 al cancelar a tiempo. — _Fase 4_
+- [~] Vender membresía dispara automáticamente: registrar ingreso contable, actualizar CRM, habilitar N prácticas, dejar al alumno listo para reservar. Saldo 12→11 al reservar, 11→12 al cancelar a tiempo. — _Fase 4_ · _Hecho: `SellMembership` habilita N créditos + CRM (ficha). Pendiente: ingreso contable (hook → Fase 7); 12→11 / 11→12 por reserva (Fase 5)._
 
 ### 3.3 Agendamientos consultan saldo
 - [ ] Con saldo → reserva; sin saldo → "No tienes un pase vigente." — _Fase 5_
