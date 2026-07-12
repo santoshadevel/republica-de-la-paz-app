@@ -24,6 +24,8 @@ class DatabaseSeeder extends Seeder
             RoomSeeder::class,
             PractitionerSeeder::class,
             AccountingCatalogSeeder::class,
+            // Full connected demo dataset (students, sales, bookings, events...).
+            DemoSeeder::class,
         ]);
 
         $admin = User::firstOrCreate(
