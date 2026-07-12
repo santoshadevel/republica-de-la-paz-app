@@ -2,6 +2,22 @@
 
 Guía para trabajar en este repositorio. Léela antes de generar código.
 
+## Regla #0 — Comunidad primero (INNEGOCIABLE)
+
+**Antes de construir cualquier módulo o feature, investigá qué ofrece la comunidad de
+Laravel/Filament.** El orden de preferencia es:
+
+1. **Una feature nativa de Laravel/Filament** que ya lo resuelva.
+2. **Un paquete de la comunidad** maduro y mantenido (ej. spatie/*, plugins de Filament).
+3. **Último recurso: escribirlo desde cero** — solo si 1 y 2 no aplican, y dejando
+   registrado por qué.
+
+Esto aplica a CADA tarea. Al abrir un módulo, el primer paso es la búsqueda/evaluación
+de paquetes; recién después se decide la implementación. Documentar la decisión (qué se
+evaluó y qué se eligió) en el commit o en este archivo cuando sea relevante.
+_Nota: usar features del framework (casts, JSON, policies, colas, etc.) NO cuenta como
+"desde cero" — es la opción 1._
+
 ## Qué es
 
 ERP liviano modular para **Santosha · República de la Paz**, un centro de yoga y
@@ -125,12 +141,26 @@ identificador en inglés. Solo los roles de **staff** (`practitioner`, `receptio
 | Actividades / prácticas       | `Activity` / `Practice` / `Session`                          |
 | Profesionales / terapeutas    | `Practitioner`                                               |
 | Clientes / alumnos            | `Student` (ficha única por email; `identity_number` opcional) |
-| Membresías y pases            | `Membership`, `Pass` (Prueba gratuita, Ciudadano 4, Comunidad 12, República ilimitada) |
+| Membresías y pases            | `MembershipPlan` (catálogo con JSON `rules`); venta/saldo/vigencia → Fase 4 |
 | Agendamientos grupales        | `GroupClass` / `Booking` (cupos, saldo, política de cancelación) |
 | Acompañamientos individuales  | `Appointment`                                               |
 | Eventos                       | `Event` (workshops, charlas, retiros, círculos, formaciones) |
 | Contabilidad                  | `Transaction`, `PaymentMethod`, `Category`, `CostCenter`     |
 | Reportes / dashboards         | Widgets de Filament + reportes                               |
+
+## Decisiones de paquetes (comunidad primero)
+
+Registro de evaluaciones (Regla #0):
+
+- **Roles/permisos:** `spatie/laravel-permission` (adoptado, Fase 1).
+- **Membresías/suscripciones:** `laravelcm/laravel-subscriptions` (fork mantenido de
+  rinvex; planes + features con límites de uso; pagos fuera de alcance). **Reservado
+  para Fase 4** (venta/saldo/vigencia). En Fase 2 el catálogo `MembershipPlan` usa un
+  JSON `rules` nativo; se mapeará al `Plan` del paquete al llegar a Fase 4.
+- Plugins Filament de suscripción (tomatophp, SubKit) descartados: orientados a
+  Stripe/Cashier, no a pago manual + saldo de prácticas.
+- **Dinero:** implementación propia liviana (`App\Support\Money` + cast) sobre features
+  nativas; suficiente para el caso y evita acoplar una lib de money pesada.
 
 ## Reglas de negocio clave (referencia rápida)
 

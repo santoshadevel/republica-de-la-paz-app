@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Filament\Resources\Students;
+namespace App\Filament\Resources\Practitioners;
 
-use App\Filament\Resources\Students\Pages\CreateStudent;
-use App\Filament\Resources\Students\Pages\EditStudent;
-use App\Filament\Resources\Students\Pages\ListStudents;
-use App\Filament\Resources\Students\Schemas\StudentForm;
-use App\Filament\Resources\Students\Tables\StudentsTable;
-use App\Models\Student;
+use App\Filament\Resources\Practitioners\Pages\CreatePractitioner;
+use App\Filament\Resources\Practitioners\Pages\EditPractitioner;
+use App\Filament\Resources\Practitioners\Pages\ListPractitioners;
+use App\Filament\Resources\Practitioners\Schemas\PractitionerForm;
+use App\Filament\Resources\Practitioners\Tables\PractitionersTable;
+use App\Models\Practitioner;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -16,19 +16,19 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class StudentResource extends Resource
+class PractitionerResource extends Resource
 {
-    protected static ?string $model = Student::class;
+    protected static ?string $model = Practitioner::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAcademicCap;
 
     protected static string|\UnitEnum|null $navigationGroup = 'Personas';
 
-    protected static ?string $navigationLabel = 'Alumnos';
+    protected static ?string $navigationLabel = 'Profesionales';
 
-    protected static ?string $modelLabel = 'Alumno';
+    protected static ?string $modelLabel = 'Profesional';
 
-    protected static ?string $pluralModelLabel = 'Alumnos';
+    protected static ?string $pluralModelLabel = 'Profesionales';
 
     protected static ?string $recordTitleAttribute = 'email';
 
@@ -39,12 +39,12 @@ class StudentResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return StudentForm::configure($schema);
+        return PractitionerForm::configure($schema);
     }
 
     public static function table(Table $table): Table
     {
-        return StudentsTable::configure($table);
+        return PractitionersTable::configure($table);
     }
 
     public static function getRelations(): array
@@ -57,9 +57,9 @@ class StudentResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ListStudents::route('/'),
-            'create' => CreateStudent::route('/create'),
-            'edit' => EditStudent::route('/{record}/edit'),
+            'index' => ListPractitioners::route('/'),
+            'create' => CreatePractitioner::route('/create'),
+            'edit' => EditPractitioner::route('/{record}/edit'),
         ];
     }
 
