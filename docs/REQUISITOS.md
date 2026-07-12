@@ -96,7 +96,7 @@ Especialidades (landing): Reiki, Sound Healing Individual, Medicina Ayurvédica,
 - [ ] Historial de pagos _(opcional 2ª etapa)_. — _Futuro_
 
 ### 2.2 Reserva de Prácticas Grupales
-- [ ] Calendario semanal (ampliable a mes) con columnas por día, filas por horario, navegación entre semanas, responsive. — _Fase 5_
+- [ ] Calendario semanal (ampliable a mes) con columnas por día, filas por horario, navegación entre semanas, responsive. — _Fase 9 (front público; requiere decidir enfoque de calendario)_
 - [ ] Cada práctica muestra: nombre, horario, duración, facilitador, sala, cupos disponibles. — _Fase 5_
 - [ ] Al hacer clic: descripción, facilitador, **nivel (si aplica)**, cupos, botón "Reservar". — _Fase 5_
 
@@ -113,14 +113,14 @@ Especialidades (landing): Reiki, Sound Healing Individual, Medicina Ayurvédica,
 > fuente para asistencia, reportes por profesional y **liquidación de honorarios** (Fase 8).
 
 ### 2.3 Control de Cupos
-- [ ] Cupo máximo configurable por práctica. — _Fase 5_
-- [ ] Mostrar lugares disponibles y **bloquear reservas cuando se llena** (cuidar concurrencia). — _Fase 5_
+- [x] Cupo máximo configurable por práctica (`ScheduledSession.capacity`). — _Fase 5_
+- [x] Mostrar lugares disponibles y **bloquear reservas cuando se llena** (con `lockForUpdate` para concurrencia). — _Fase 5_
 - [ ] Lista de espera _(opcional 2ª etapa)_. — _Futuro_
 
 ### 2.4 Descuento Automático de Prácticas
-- [ ] Al reservar: verificar pase/membresía vigente, verificar saldo (salvo ilimitada), descontar 1. — _Fase 5_
-- [ ] **Política cancelación grupal:** cancelar **>1 h antes** reintegra saldo + libera cupo; con **<1 h o no-show** se consume. — _Fase 5_
-- [ ] Ilimitadas no descuentan pero **igual registran** reservas, cancelaciones y asistencias. — _Fase 5_
+- [x] Al reservar: verificar pase/membresía vigente, verificar saldo (salvo ilimitada), descontar 1 (`BookSession`). — _Fase 5_
+- [x] **Política cancelación grupal:** cancelar **>1 h antes** reintegra saldo + libera cupo; con **<1 h o no-show** se consume (`CancelBooking`, ventana en config/booking.php). — _Fase 5_
+- [x] Ilimitadas no descuentan pero **igual registran** reservas, cancelaciones y asistencias. — _Fase 5_
 
 ### 2.5 Reserva de Acompañamientos Individuales
 Ejemplos: Psicología, Reiki, Sound Healing, KAP, Medicina Ayurvédica, Masaje Ayurvédico, Fisioterapia, Tarot, Diseño Humano, Yoga Terapéutico.
@@ -144,11 +144,11 @@ Ejemplos: Psicología, Reiki, Sound Healing, KAP, Medicina Ayurvédica, Masaje A
 - [ ] Canal por definir: email / WhatsApp / ambos. — _Fase 10_
 
 ### 2.10 Reglas de Negocio (resumen)
-- [ ] Solo reservan con pase/membresía vigente; sin saldo no se reserva (salvo ilimitada); no superar cupos; reintegro >1 h; sin reintegro fuera de plazo; **registrar asistencia** siempre. — _Fase 5/6_
+- [~] Solo reservan con pase/membresía vigente; sin saldo no se reserva (salvo ilimitada); no superar cupos; reintegro >1 h; sin reintegro fuera de plazo; **registrar asistencia** siempre. — _Fase 5/6_ · _Grupales completo (Actions + asistencia); individuales → Fase 6._
 
 ### 2.11 Panel Administrativo (agendamiento)
 - [~] **Alumnos:** crear/editar, historial completo, reservas activas, asistencias, cancelaciones, **agregar/descontar prácticas manualmente**, asignar/modificar pases. — _Fase 3/4_ · _Hecho: crear/editar, asignar pase (vender) y ajuste manual de créditos desde la ficha; reservas/asistencias/cancelaciones → Fases 5/6._
-- [ ] **Prácticas grupales:** crear prácticas/horarios, modificar, asignar facilitadores, configurar cupos, registrar asistencia, listado de inscriptos. — _Fase 5_
+- [~] **Prácticas grupales:** crear prácticas/horarios, modificar, asignar facilitadores, configurar cupos, registrar asistencia, listado de inscriptos. — _Fase 5_ · _Hecho: ScheduledSessionResource (crear/editar sesión, facilitador, sala, cupo, estado) + roster (reservar en nombre, cancelar, asistencia). Pendiente: generador de horario semanal recurrente (plantilla→ocurrencias)._
 - [ ] **Acompañamientos:** crear/modificar/bloquear agendas, reprogramar, cancelar, ver agenda de todos los profesionales. — _Fase 6_
 - [ ] **Eventos:** crear, editar, definir cupos, gestionar inscripciones, registrar asistencia. — _Fase 6_
 - [ ] **Reportes:** reservas por práctica, asistentes, ocupación, historial por alumno/profesional, estadísticas de uso de pases. — _Fase 8_
