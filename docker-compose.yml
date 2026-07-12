@@ -11,8 +11,11 @@ services:
     working_dir: /var/www/html
     volumes:
       - ./:/var/www/html
-    env_file:
-      - .env
+    # NOTE: do NOT use `env_file: .env` here. Laravel already reads .env from the
+    # mounted code; injecting .env as container OS env vars would shadow the
+    # phpunit.xml <env> overrides (e.g. DB_CONNECTION=sqlite), making the test
+    # suite run against the dev MySQL database and wipe it on RefreshDatabase.
+    # Only inject what the container itself needs (the DB host for the entrypoint).
     environment:
       DB_HOST: db
     depends_on:
