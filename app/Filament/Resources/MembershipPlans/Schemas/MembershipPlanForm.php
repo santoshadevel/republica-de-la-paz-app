@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources\MembershipPlans\Schemas;
 
+use App\Enums\ActivityType;
 use App\Support\Money;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -78,6 +80,23 @@ class MembershipPlanForm
                             ->default(1),
                     ])
                     ->columns(2),
+                // Coverage: which activities the plan includes (hybrid model).
+                Fieldset::make('Actividades incluidas')
+                    ->schema([
+                        Select::make('rules.included_types')
+                            ->label('Tipos de actividad incluidos')
+                            ->multiple()
+                            ->options(ActivityType::options())
+                            ->helperText('El plan cubre TODAS las actividades de estos tipos.'),
+                        Select::make('includedActivities')
+                            ->label('Actividades específicas')
+                            ->relationship('includedActivities', 'name')
+                            ->multiple()
+                            ->searchable()
+                            ->preload()
+                            ->helperText('Actividades puntuales incluidas además de los tipos.'),
+                    ])
+                    ->columns(1),
             ]);
     }
 }

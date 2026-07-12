@@ -25,6 +25,7 @@ class PlanSeeder extends Seeder
                     'unlimited' => false,
                     'validity_days' => 7,
                     'cancellation' => ['group_hours' => 1],
+                    'included_types' => ['group_class'],
                 ],
             ],
             [
@@ -38,6 +39,7 @@ class PlanSeeder extends Seeder
                     'unlimited' => false,
                     'validity_days' => 30,
                     'cancellation' => ['group_hours' => 1],
+                    'included_types' => ['group_class'],
                 ],
             ],
             [
@@ -51,6 +53,7 @@ class PlanSeeder extends Seeder
                     'unlimited' => false,
                     'validity_days' => 30,
                     'cancellation' => ['group_hours' => 1],
+                    'included_types' => ['group_class'],
                 ],
             ],
             [
@@ -64,6 +67,7 @@ class PlanSeeder extends Seeder
                     'unlimited' => true,
                     'validity_days' => 30,
                     'cancellation' => ['group_hours' => 1],
+                    'included_types' => ['group_class'],
                 ],
             ],
         ];

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /** Catalog entry for a practice/class/event that can be scheduled later. */
@@ -38,5 +39,11 @@ class Activity extends Model
     public function defaultRoom(): BelongsTo
     {
         return $this->belongsTo(Room::class, 'default_room_id');
+    }
+
+    /** Plans that include this activity specifically (via the pivot). */
+    public function membershipPlans(): BelongsToMany
+    {
+        return $this->belongsToMany(MembershipPlan::class)->withTimestamps();
     }
 }

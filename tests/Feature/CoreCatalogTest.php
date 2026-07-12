@@ -116,6 +116,39 @@ class CoreCatalogTest extends TestCase
             ->assertFormSet(['price' => 200000.0]);
     }
 
+    public function test_plan_covers_activities_by_type_and_by_specific_pivot(): void
+    {
+        $groupClass = Activity::factory()->create(['type' => ActivityType::GroupClass]);
+        $event = Activity::factory()->create(['type' => ActivityType::Event]);
+        $anotherEvent = Activity::factory()->create(['type' => ActivityType::Event]);
+
+        // Plan covers all group classes (by type) + one specific event.
+        $plan = MembershipPlan::factory()->create([
+            'rules' => ['included_types' => ['group_class']],
+        ]);
+        $plan->includedActivities()->attach($event);
+
+        $this->assertTrue($plan->coversActivity($groupClass), 'covered by type');
+        $this->assertTrue($plan->coversActivity($event), 'covered specifically');
+        $this->assertFalse($plan->coversActivity($anotherEvent), 'not covered');
+
+        $coveredIds = $plan->coveredActivities()->pluck('id')->sort()->values()->all();
+        $this->assertSame(
+            collect([$groupClass->id, $event->id])->sort()->values()->all(),
+            $coveredIds,
+        );
+    }
+
+    public function test_seeded_passes_cover_group_classes(): void
+    {
+        $this->seed(PlanSeeder::class);
+        $groupClass = Activity::factory()->create(['type' => ActivityType::GroupClass]);
+
+        foreach (MembershipPlan::all() as $plan) {
+            $this->assertTrue($plan->coversActivity($groupClass), "{$plan->slug} covers group classes");
+        }
+    }
+
     public function test_membership_plan_auto_generates_a_unique_slug_from_the_name(): void
     {
         $a = MembershipPlan::create(['name' => 'Pase Test', 'price' => 0]);

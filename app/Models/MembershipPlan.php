@@ -3,10 +3,13 @@
 namespace App\Models;
 
 use App\Casts\MoneyCast;
+use App\Enums\ActivityType;
 use Database\Factories\MembershipPlanFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
@@ -75,5 +78,60 @@ class MembershipPlan extends Model
         $days = $this->rule('validity_days');
 
         return $days === null ? null : (int) $days;
+    }
+
+    /* -----------------------------------------------------------------
+     | Activity coverage (which activities the plan includes)
+     |
+     | Hybrid model: a plan covers whole activity types via the
+     | rules.included_types bag, and/or specific activities via the
+     | activity_membership_plan pivot.
+     * ----------------------------------------------------------------- */
+
+    /** Specific activities explicitly included by this plan. */
+    public function includedActivities(): BelongsToMany
+    {
+        return $this->belongsToMany(Activity::class)->withTimestamps();
+    }
+
+    /**
+     * Activity types this plan covers wholesale.
+     *
+     * @return array<int, ActivityType>
+     */
+    public function includedTypes(): array
+    {
+        return collect((array) $this->rule('included_types', []))
+            ->map(fn ($value) => $value instanceof ActivityType ? $value : ActivityType::tryFrom($value))
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    /** Whether this plan grants access to the given activity. */
+    public function coversActivity(Activity $activity): bool
+    {
+        if (in_array($activity->type, $this->includedTypes(), true)) {
+            return true;
+        }
+
+        return $this->includedActivities()
+            ->whereKey($activity->getKey())
+            ->exists();
+    }
+
+    /** Query of every activity this plan covers (by type or specifically). */
+    public function coveredActivities(): Builder
+    {
+        $typeValues = array_map(fn (ActivityType $type) => $type->value, $this->includedTypes());
+        $planId = $this->getKey();
+
+        return Activity::query()->where(function (Builder $query) use ($typeValues, $planId) {
+            if ($typeValues !== []) {
+                $query->whereIn('type', $typeValues);
+            }
+
+            $query->orWhereHas('membershipPlans', fn (Builder $q) => $q->whereKey($planId));
+        });
     }
 }
