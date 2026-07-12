@@ -80,6 +80,17 @@ class CoreCatalogTest extends TestCase
         $this->assertSame('Gs 200.000', (string) $plan->price);
     }
 
+    public function test_room_can_be_virtual_with_a_meeting_url(): void
+    {
+        $physical = Room::factory()->create();
+        $virtual = Room::factory()->virtual()->create();
+
+        $this->assertFalse($physical->isVirtual());
+        $this->assertTrue($virtual->isVirtual());
+        $this->assertNotNull($virtual->meeting_url);
+        $this->assertNull($virtual->capacity);
+    }
+
     public function test_activity_type_defaults_to_group_class(): void
     {
         $activity = Activity::factory()->create();

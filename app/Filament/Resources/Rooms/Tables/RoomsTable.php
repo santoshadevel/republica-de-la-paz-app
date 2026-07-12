@@ -22,9 +22,13 @@ class RoomsTable
                 TextColumn::make('name')
                     ->label('Nombre')
                     ->searchable(),
+                TextColumn::make('type')
+                    ->label('Tipo')
+                    ->badge(),
                 TextColumn::make('capacity')
                     ->label('Capacidad')
                     ->numeric()
+                    ->placeholder('Ilimitada')
                     ->sortable(),
                 ColorColumn::make('color')
                     ->label('Color'),

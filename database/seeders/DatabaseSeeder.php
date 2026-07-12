@@ -21,6 +21,8 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             PlanSeeder::class,
             ActivitySeeder::class,
+            RoomSeeder::class,
+            PractitionerSeeder::class,
         ]);
 
         $admin = User::firstOrCreate(

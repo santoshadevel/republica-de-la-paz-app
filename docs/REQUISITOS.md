@@ -32,6 +32,7 @@
 
 ### 1.3 Sesiones semanales (2 salas en simultáneo)
 - [ ] Vista de horario semanal. **El calendario debe soportar 2 salas en paralelo por franja.** — _Fase 5_
+- [x] Las salas pueden ser **físicas o virtuales** (`Room.type`; las virtuales llevan `meeting_url`). Seed inicial: Sala Principal, Sala Secundaria, Consultorio, Sala Virtual.
 
 Horario de referencia (dato de negocio a sembrar, no hardcodear):
 
