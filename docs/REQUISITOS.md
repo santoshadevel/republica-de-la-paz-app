@@ -99,6 +99,18 @@ Especialidades (landing): Reiki, Sound Healing Individual, Medicina Ayurvédica,
 - [ ] Cada práctica muestra: nombre, horario, duración, facilitador, sala, cupos disponibles. — _Fase 5_
 - [ ] Al hacer clic: descripción, facilitador, **nivel (si aplica)**, cupos, botón "Reservar". — _Fase 5_
 
+> **Nota de diseño — modelo de agenda (Fase 5). "¿Quién dicta la actividad del día X?"**
+> El pivote `activity_practitioner` (Fase 3) solo dice **quién *puede*** dictar una actividad
+> (especialidad, sin fecha). El facilitador **concreto de un día** vive en la instancia agendada,
+> NO en el pivote. Modelar dos niveles:
+> 1. **Plantilla recurrente** (horario semanal fijo del PDF, p. ej. "Hatha Vinyasa Lun/Mié/Vie 8:30"):
+>    define actividad, sala, hora y **facilitador por defecto**.
+> 2. **Ocurrencia con fecha** (`scheduled_session`): generada de la plantilla, con
+>    `activity_id`, **`practitioner_id` (quién la dio ese día — admite suplencias)**, `room_id`,
+>    `starts_at`/`ends_at`, `capacity`, `status`. El "quién dictó el día X" se guarda **por ocurrencia**.
+> Debe soportar **2 salas en simultáneo** por franja. Este `practitioner_id` por ocurrencia es la
+> fuente para asistencia, reportes por profesional y **liquidación de honorarios** (Fase 8).
+
 ### 2.3 Control de Cupos
 - [ ] Cupo máximo configurable por práctica. — _Fase 5_
 - [ ] Mostrar lugares disponibles y **bloquear reservas cuando se llena** (cuidar concurrencia). — _Fase 5_

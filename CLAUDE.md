@@ -18,6 +18,18 @@ evaluó y qué se eligió) en el commit o en este archivo cuando sea relevante.
 _Nota: usar features del framework (casts, JSON, policies, colas, etc.) NO cuenta como
 "desde cero" — es la opción 1._
 
+### Criterios OBLIGATORIOS para usar un paquete (INNEGOCIABLE)
+
+- **Confirmación del usuario SIEMPRE.** Antes de instalar/adoptar cualquier paquete, el
+  usuario lo tiene que aprobar. Presentar la evaluación (qué resuelve, stars, última
+  actualización, encaje) y esperar el OK. Nunca agregar una dependencia sin confirmación.
+- **NUNCA** usar un paquete que:
+  - no esté respaldado/sostenido por la comunidad, o
+  - tenga **menos de 1.000 stars** en GitHub, o
+  - no haya sido **actualizado en los últimos 3 meses**.
+- Los paquetes oficiales de Laravel/Filament y de Spatie cumplen estos criterios por
+  defecto, pero igual requieren confirmación del usuario antes de sumarse.
+
 ## Qué es
 
 ERP liviano modular para **Santosha · República de la Paz**, un centro de yoga y
@@ -156,10 +168,14 @@ identificador en inglés. Solo los roles de **staff** (`practitioner`, `receptio
 Registro de evaluaciones (Regla #0):
 
 - **Roles/permisos:** `spatie/laravel-permission` (adoptado, Fase 1).
-- **Membresías/suscripciones:** `laravelcm/laravel-subscriptions` (fork mantenido de
-  rinvex; planes + features con límites de uso; pagos fuera de alcance). **Reservado
-  para Fase 4** (venta/saldo/vigencia). En Fase 2 el catálogo `MembershipPlan` usa un
-  JSON `rules` nativo; se mapeará al `Plan` del paquete al llegar a Fase 4.
+- **Membresías/suscripciones (Fase 4):** **modelo propio liviano** sobre el
+  `MembershipPlan` existente — `StudentMembership` + ledger `CreditMovement`. Diseño
+  detallado en [docs/MODULO_MEMBRESIAS.md](docs/MODULO_MEMBRESIAS.md). Evaluados y
+  **descartados**:
+  - `laravelcm/laravel-subscriptions`: compatible con L13 pero duplica `MembershipPlan`
+    y su uso por período no encaja con el pool de créditos que vence.
+  - `laravel/cashier`: facturación vía Stripe; los pagos en PY son manuales/Bancard y el
+    pase es prepago con saldo, no una suscripción de tarjeta (anti white-label).
 - Plugins Filament de suscripción (tomatophp, SubKit) descartados: orientados a
   Stripe/Cashier, no a pago manual + saldo de prácticas.
 - **Dinero:** implementación propia liviana (`App\Support\Money` + cast) sobre features
