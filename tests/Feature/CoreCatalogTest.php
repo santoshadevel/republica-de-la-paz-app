@@ -5,12 +5,16 @@ namespace Tests\Feature;
 use App\Enums\ActivityType;
 use App\Enums\Role;
 use App\Filament\Resources\Activities\Pages\CreateActivity;
+use App\Filament\Resources\Activities\Pages\EditActivity;
 use App\Filament\Resources\Activities\Pages\ListActivities;
 use App\Filament\Resources\MembershipPlans\Pages\CreateMembershipPlan;
+use App\Filament\Resources\MembershipPlans\Pages\EditMembershipPlan;
 use App\Filament\Resources\MembershipPlans\Pages\ListMembershipPlans;
 use App\Filament\Resources\Practitioners\Pages\CreatePractitioner;
+use App\Filament\Resources\Practitioners\Pages\EditPractitioner;
 use App\Filament\Resources\Practitioners\Pages\ListPractitioners;
 use App\Filament\Resources\Rooms\Pages\CreateRoom;
+use App\Filament\Resources\Rooms\Pages\EditRoom;
 use App\Filament\Resources\Rooms\Pages\ListRooms;
 use App\Models\Activity;
 use App\Models\MembershipPlan;
@@ -92,6 +96,24 @@ class CoreCatalogTest extends TestCase
         Livewire::actingAs($admin)->test(CreatePractitioner::class)->assertOk();
         Livewire::actingAs($admin)->test(CreateActivity::class)->assertOk();
         Livewire::actingAs($admin)->test(CreateMembershipPlan::class)->assertOk();
+    }
+
+    public function test_edit_pages_load_an_existing_record(): void
+    {
+        $admin = $this->admin();
+
+        $room = Room::factory()->create();
+        $practitioner = Practitioner::factory()->create();
+        $activity = Activity::factory()->create();
+        $plan = MembershipPlan::factory()->create(['price' => 200000]);
+
+        Livewire::actingAs($admin)->test(EditRoom::class, ['record' => $room->getKey()])->assertOk();
+        Livewire::actingAs($admin)->test(EditPractitioner::class, ['record' => $practitioner->getKey()])->assertOk();
+        Livewire::actingAs($admin)->test(EditActivity::class, ['record' => $activity->getKey()])->assertOk();
+        // Regression: Money attribute must not break the numeric price field.
+        Livewire::actingAs($admin)->test(EditMembershipPlan::class, ['record' => $plan->getKey()])
+            ->assertOk()
+            ->assertFormSet(['price' => 200000.0]);
     }
 
     public function test_membership_plan_auto_generates_a_unique_slug_from_the_name(): void

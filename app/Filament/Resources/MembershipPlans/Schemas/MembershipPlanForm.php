@@ -36,8 +36,11 @@ class MembershipPlanForm
                 TextInput::make('price')
                     ->label('Precio')
                     ->required()
-                    ->numeric()
-                    ->minValue(0)
+                    // Not ->numeric(): that adds a NumberStateCast that runs before
+                    // formatStateUsing and cannot convert the Money object. We format
+                    // the Money to major units here and dehydrate back to minor units.
+                    ->rules(['numeric', 'min:0'])
+                    ->inputMode('decimal')
                     ->default(0)
                     ->prefix($symbol)
                     ->step($digits > 0 ? (10 ** -$digits) : 1)
