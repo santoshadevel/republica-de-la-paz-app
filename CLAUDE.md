@@ -27,6 +27,9 @@ CRM, habilita reservas, registra el ingreso contable y deja al alumno disponible
 comunicación.
 
 El plan completo, alcance por fases y criterios de aceptación están en [SPEC.md](SPEC.md).
+Los **requisitos del cliente transcritos del PDF** (fuente de verdad del negocio, checklist
+trazable por fase) están en [docs/REQUISITOS.md](docs/REQUISITOS.md) — **nada del PDF debe
+perderse**: al construir cada fase, verificar y marcar sus ítems ahí.
 
 - **Marca inicial:** Santosha (Paraguay). Moneda por defecto: Guaraníes (Gs) — pero
   **configurable**, ver "Arquitectura white-label".

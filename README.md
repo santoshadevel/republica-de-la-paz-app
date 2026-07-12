@@ -1,7 +1,10 @@
 # Santosha · República de la Paz — ERP
 
 ERP liviano modular (Laravel 13 + FilamentPHP 5 + MySQL) sobre Docker.
-Ver [SPEC.md](SPEC.md) para el objetivo, alcance y plan de fases.
+
+- [SPEC.md](SPEC.md) — objetivo, alcance, decisiones y plan de fases.
+- [docs/REQUISITOS.md](docs/REQUISITOS.md) — requisitos del cliente transcritos del PDF (fuente de verdad, checklist por fase).
+- [CLAUDE.md](CLAUDE.md) — convenciones para trabajar en el repo.
 
 ## Stack
 

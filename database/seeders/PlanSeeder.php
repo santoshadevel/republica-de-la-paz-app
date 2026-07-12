@@ -32,7 +32,7 @@ class PlanSeeder extends Seeder
                 'slug' => 'citizen-pass',
                 'name' => 'Pase Ciudadano',
                 'description' => '4 prácticas para usar durante el mes.',
-                'price' => 200000,
+                'price' => 350000,
                 'sort_order' => 2,
                 'rules' => [
                     'credits' => 4,
@@ -46,7 +46,7 @@ class PlanSeeder extends Seeder
                 'slug' => 'community-pass',
                 'name' => 'Pase Comunidad',
                 'description' => '12 prácticas para usar durante el mes.',
-                'price' => 450000,
+                'price' => 400000,
                 'sort_order' => 3,
                 'rules' => [
                     'credits' => 12,
@@ -60,7 +60,7 @@ class PlanSeeder extends Seeder
                 'slug' => 'republic-membership',
                 'name' => 'Membresía República',
                 'description' => 'Prácticas ilimitadas durante el mes.',
-                'price' => 700000,
+                'price' => 480000,
                 'sort_order' => 4,
                 'rules' => [
                     'credits' => null,
