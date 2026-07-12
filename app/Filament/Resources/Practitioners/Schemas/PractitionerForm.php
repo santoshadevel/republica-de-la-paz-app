@@ -42,6 +42,14 @@ class PractitionerForm
                     ->label('Nº de identidad')
                     ->maxLength(255)
                     ->unique(ignoreRecord: true),
+                Select::make('activities')
+                    ->label('Especialidades')
+                    ->relationship('activities', 'name')
+                    ->multiple()
+                    ->preload()
+                    ->searchable()
+                    ->helperText('Actividades que dicta este profesional (yoga, terapias, etc.).')
+                    ->columnSpanFull(),
                 Textarea::make('bio')
                     ->label('Biografía')
                     ->columnSpanFull(),

@@ -18,7 +18,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'email',
     'phone',
     'identity_number',
+    'tax_id',
     'birth_date',
+    'acquisition_source',
+    'goals',
     'notes',
     'is_active',
 ])]

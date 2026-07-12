@@ -9,6 +9,8 @@ use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 
@@ -33,6 +35,13 @@ class StudentsTable
                 TextColumn::make('identity_number')
                     ->label('Nº de identidad')
                     ->searchable(),
+                TextColumn::make('tax_id')
+                    ->label('RUC / Nº fiscal')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('acquisition_source')
+                    ->label('¿Cómo nos conoció?')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('birth_date')
                     ->label('Nacimiento')
                     ->date()
@@ -57,6 +66,25 @@ class StudentsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                // Segmentación básica de CRM disponible hoy; los segmentos que
+                // dependen de asistencia/saldo llegan con Fases 4–6.
+                TernaryFilter::make('is_active')
+                    ->label('Estado')
+                    ->boolean()
+                    ->trueLabel('Activos')
+                    ->falseLabel('Inactivos')
+                    ->native(false),
+                SelectFilter::make('acquisition_source')
+                    ->label('¿Cómo nos conoció?')
+                    ->options([
+                        'instagram' => 'Instagram',
+                        'facebook' => 'Facebook',
+                        'google' => 'Google / Búsqueda web',
+                        'referral' => 'Recomendación',
+                        'event' => 'Evento',
+                        'walk_in' => 'Pasó por el local',
+                        'other' => 'Otro',
+                    ]),
                 TrashedFilter::make(),
             ])
             ->recordActions([

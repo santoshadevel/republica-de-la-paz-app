@@ -52,7 +52,7 @@ Tipos de yoga mencionados: Hatha, Vinyasa, Hatha Vinyasa, Yogafitness, Aero, Slo
 
 ### 1.4 Consultas y Acompañamientos Individuales
 Especialidades (landing): Reiki, Sound Healing Individual, Medicina Ayurvédica, Masaje Ayurvédico, Fisioterapia, Psicología, Tarot, Diseño Humano.
-- [ ] Cada especialidad muestra: descripción breve, **profesional responsable**, duración, botón de reserva. — _Fase 6 (relación profesional↔especialidad: Fase 3)_
+- [~] Cada especialidad muestra: descripción breve, **profesional responsable**, duración, botón de reserva. — _Fase 6 (relación profesional↔especialidad ya modelada en Fase 3 vía pivote `activity_practitioner`)_
 
 ### 1.5 Referentes de la República (equipo)
 - [ ] Perfiles con disciplinas + biografía breve: — _Fase 3 (datos) / Fase 9 (landing)_
@@ -145,7 +145,7 @@ Ejemplos: Psicología, Reiki, Sound Healing, KAP, Medicina Ayurvédica, Masaje A
 ## 3. CRM (págs. 18–21)
 
 ### 3.1 Ficha única del alumno
-- [ ] Una sola ficha por persona (identidad única por email; `identity_number` opcional). Campos: nombre, apellido, **cédula (identity_number)** y **RUC (tax_id)**, teléfono, email, fecha de nacimiento, **cómo conoció Santosha (acquisition_source)**, **objetivos (goals)**, observaciones (notes), membresía actual. — _Fase 3_
+- [~] Una sola ficha por persona (identidad única por email; `identity_number` opcional). Campos: nombre, apellido, **cédula (identity_number)** y **RUC (tax_id)**, teléfono, email, fecha de nacimiento, **cómo conoció Santosha (acquisition_source)**, **objetivos (goals)**, observaciones (notes), membresía actual. — _Fase 3_ · _Campos listos (incl. tax_id/acquisition_source/goals); "membresía actual" llega con Fase 4._
 - [ ] Historiales agregados: compras, clases, sesiones individuales, eventos, pagos. — _Fase 3+_
 
 ### 3.2 Membresías conectadas
@@ -155,7 +155,7 @@ Ejemplos: Psicología, Reiki, Sound Healing, KAP, Medicina Ayurvédica, Masaje A
 - [ ] Con saldo → reserva; sin saldo → "No tienes un pase vigente." — _Fase 5_
 
 ### 3.4 CRM + Marketing (segmentación dinámica)
-- [ ] Motor de filtros/segmentos sobre datos conectados. Ejemplos: "no vienen hace >30 días", "menos de 2 clases disponibles", "hicieron Yoga pero nunca Sound Healing". — _Fase 3/8_
+- [~] Motor de filtros/segmentos sobre datos conectados. Ejemplos: "no vienen hace >30 días", "menos de 2 clases disponibles", "hicieron Yoga pero nunca Sound Healing". — _Fase 3/8_ · _Filtros básicos hoy (estado activo, canal de captación); los que dependen de asistencia/saldo llegan con Fases 4–6._
 
 ---
 

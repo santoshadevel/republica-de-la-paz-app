@@ -46,4 +46,10 @@ class Activity extends Model
     {
         return $this->belongsToMany(MembershipPlan::class)->withTimestamps();
     }
+
+    /** Practitioners who lead this activity (specialty pivot). */
+    public function practitioners(): BelongsToMany
+    {
+        return $this->belongsToMany(Practitioner::class)->withTimestamps();
+    }
 }

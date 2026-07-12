@@ -33,6 +33,10 @@ class PractitionersTable
                 TextColumn::make('identity_number')
                     ->label('Nº de identidad')
                     ->searchable(),
+                TextColumn::make('activities.name')
+                    ->label('Especialidades')
+                    ->badge()
+                    ->placeholder('—'),
                 TextColumn::make('user.name')
                     ->label('Usuario')
                     ->placeholder('—')
