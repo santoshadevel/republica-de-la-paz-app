@@ -10,6 +10,7 @@ use App\Filament\Resources\Accounts\Pages\ManageAccounts;
 use App\Filament\Resources\Transfers\Pages\ManageTransfers;
 use App\Models\Account;
 use App\Models\PaymentMethod;
+use App\Models\Transaction;
 use App\Models\User;
 use App\Support\Money;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -45,6 +46,38 @@ class AccountTest extends TestCase
         $this->assertSame(1_000_000, $account->balance()->minorAmount);
         // other only receives the transfer in.
         $this->assertSame(300_000, $other->balance()->minorAmount);
+    }
+
+    public function test_transfer_generates_two_ledger_transactions(): void
+    {
+        $from = Account::factory()->create();
+        $to = Account::factory()->create();
+
+        $transfer = app(RecordTransfer::class)->execute($from, $to, Money::ofMinor(300_000));
+
+        // Two transactions, linked to the transfer, one expense + one income.
+        $this->assertSame(2, Transaction::count());
+        $this->assertSame(2, $transfer->transactions()->count());
+        $this->assertSame(1, $from->transactions()->expense()->count());
+        $this->assertSame(1, $to->transactions()->income()->count());
+
+        // They are excluded from real income/expense (P&L).
+        $this->assertSame(0, Transaction::query()->notTransfer()->count());
+    }
+
+    public function test_deleting_a_transfer_removes_its_transactions(): void
+    {
+        $from = Account::factory()->create(['opening_balance' => 500_000]);
+        $to = Account::factory()->create();
+
+        $transfer = app(RecordTransfer::class)->execute($from, $to, Money::ofMinor(200_000));
+        $this->assertSame(300_000, $from->balance()->minorAmount);
+
+        $transfer->delete();
+
+        // Ledger entries gone → balances restored.
+        $this->assertSame(500_000, $from->balance()->minorAmount);
+        $this->assertSame(0, $to->balance()->minorAmount);
     }
 
     public function test_payment_method_routes_transaction_to_its_default_account(): void

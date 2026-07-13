@@ -7,7 +7,6 @@ use App\Models\Transfer;
 use App\Support\Money;
 use BackedEnum;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -93,7 +92,6 @@ class TransferResource extends Resource
                     ->placeholder('—'),
             ])
             ->recordActions([
-                EditAction::make(),
                 DeleteAction::make(),
             ]);
     }

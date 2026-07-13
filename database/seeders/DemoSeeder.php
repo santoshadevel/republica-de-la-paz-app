@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Actions\Accounting\RecordTransaction;
+use App\Actions\Accounting\RecordTransfer;
 use App\Actions\Appointments\BookAppointment;
 use App\Actions\Bookings\BookSession;
 use App\Actions\Events\RegisterForEvent;
@@ -15,6 +16,7 @@ use App\Enums\TransactionType;
 use App\Exceptions\AppointmentException;
 use App\Exceptions\BookingException;
 use App\Exceptions\EventException;
+use App\Models\Account;
 use App\Models\Activity;
 use App\Models\Appointment;
 use App\Models\Category;
@@ -51,6 +53,7 @@ class DemoSeeder extends Seeder
         $this->seedAppointments($students);
         $this->seedEvents($students);
         $this->seedExpenses();
+        $this->seedTransfers();
     }
 
     /** @return Collection<int, Student> */
@@ -232,6 +235,24 @@ class DemoSeeder extends Seeder
                 attributes: [
                     'description' => $description,
                     'occurred_on' => now()->subDays(fake()->numberBetween(0, 20))->toDateString(),
+                ],
+            );
+        }
+    }
+
+    private function seedTransfers(): void
+    {
+        $cashBox = Account::where('name', 'Caja chica')->first();
+        $bank = Account::where('name', 'Cuenta Banco 0082')->first();
+
+        if ($cashBox && $bank) {
+            app(RecordTransfer::class)->execute(
+                $cashBox,
+                $bank,
+                Money::ofMinor(500_000),
+                [
+                    'description' => 'Depósito de caja al banco',
+                    'occurred_on' => now()->subDays(3)->toDateString(),
                 ],
             );
         }

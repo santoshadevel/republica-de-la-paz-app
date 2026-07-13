@@ -14,8 +14,9 @@ class CashSummary extends StatsOverviewWidget
     {
         $start = now()->startOfMonth()->toDateString();
 
-        $income = (int) Transaction::query()->income()->whereDate('occurred_on', '>=', $start)->sum('amount');
-        $expense = (int) Transaction::query()->expense()->whereDate('occurred_on', '>=', $start)->sum('amount');
+        // P&L excludes internal transfers between accounts.
+        $income = (int) Transaction::query()->income()->notTransfer()->whereDate('occurred_on', '>=', $start)->sum('amount');
+        $expense = (int) Transaction::query()->expense()->notTransfer()->whereDate('occurred_on', '>=', $start)->sum('amount');
 
         return [
             Stat::make('Ingresos del mes', (string) Money::ofMinor($income))

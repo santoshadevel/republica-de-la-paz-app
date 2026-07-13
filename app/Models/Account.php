@@ -45,16 +45,16 @@ class Account extends Model
         return $this->hasMany(Transfer::class, 'to_account_id');
     }
 
-    /** Current balance = opening + income - expense + transfers in - transfers out. */
+    /**
+     * Current balance = opening + income - expense, over ALL transactions of the
+     * account. Transfers are recorded as transactions too, so they are already
+     * included here (money in/out of this account).
+     */
     public function balance(): Money
     {
         $income = (int) $this->transactions()->income()->sum('amount');
         $expense = (int) $this->transactions()->expense()->sum('amount');
-        $in = (int) $this->transfersIn()->sum('amount');
-        $out = (int) $this->transfersOut()->sum('amount');
 
-        $minor = $this->opening_balance->minorAmount + $income - $expense + $in - $out;
-
-        return Money::ofMinor($minor);
+        return Money::ofMinor($this->opening_balance->minorAmount + $income - $expense);
     }
 }

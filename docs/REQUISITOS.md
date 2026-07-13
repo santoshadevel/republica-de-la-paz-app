@@ -194,8 +194,8 @@ Categorías de ingreso (a sembrar): **Membresías** (República, Comunidad, Ciud
 - [ ] Exportar reporte para el contador. — _Fase 8 (reportes)_
 
 ### 4.6 Caja
-- [x] Caja inicial + ingresos − egresos = caja disponible, filtrable por fecha. — _Fase 7_ · _Modelado como **cuentas/cajas** (Account): efectivo y cuentas bancarias con **saldo inicial** (caja inicial) y **saldo actual** calculado; cada transacción entra/sale de una cuenta (auto-ruteada por método de pago) y las **transferencias** mueven dinero entre cuentas. Resumen del mes (widget CashSummary) + filtro por fechas. Conciliación avanzada → Fase 8._
-- [x] **Cuentas / cajas** (ej. Caja chica, Cuenta Banco 0082) con saldo, y **transferencias internas** entre cuentas. — _Fase 7 (Account + Transfer)_
+- [x] Caja inicial + ingresos − egresos = caja disponible, filtrable por fecha. — _Fase 7_ · _Modelado como **cuentas/cajas** (Account): efectivo y cuentas bancarias con **saldo inicial** (caja inicial) y **saldo actual = saldo inicial + Σ ingresos − Σ egresos de SUS transactions**. Cada transacción entra/sale de una cuenta (auto-ruteada por método de pago). Resumen del mes (CashSummary, excluye transferencias) + filtro por fechas._
+- [x] **Cuentas / cajas** (ej. Caja chica, Cuenta Banco 0082) con saldo, y **transferencias internas** entre cuentas. — _Fase 7_ · _Una transferencia genera **2 transactions** (egreso en origen + ingreso en destino, marcadas con source=Transfer), así el saldo de cada caja sale puro de transactions; se excluyen del resultado (P&L) vía scope `notTransfer`._
 
 ### 4.7 Dashboard Administrativo
 - [ ] **Resumen del día:** alumnos asistiendo, prácticas, acompañamientos, eventos, ingresos, egresos, saldo del día. — _Fase 8_

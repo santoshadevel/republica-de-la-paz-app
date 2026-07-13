@@ -92,4 +92,15 @@ class Transaction extends Model
     {
         return $query->where('type', TransactionType::Expense->value);
     }
+
+    /**
+     * Only "real" movements, excluding internal transfers between accounts. Use
+     * for P&L (income/expense/profit); account balances still include transfers.
+     */
+    public function scopeNotTransfer(Builder $query): Builder
+    {
+        return $query->where(fn (Builder $q) => $q
+            ->whereNull('source_type')
+            ->orWhere('source_type', '!=', Transfer::class));
+    }
 }
