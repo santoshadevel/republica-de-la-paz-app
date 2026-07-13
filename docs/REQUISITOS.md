@@ -198,18 +198,18 @@ Categorías de ingreso (a sembrar): **Membresías** (República, Comunidad, Ciud
 - [x] **Cuentas / cajas** (ej. Caja chica, Cuenta Banco 0082) con saldo, y **transferencias internas** entre cuentas. — _Fase 7_ · _Una transferencia genera **2 transactions** (egreso en origen + ingreso en destino, marcadas con source=Transfer), así el saldo de cada caja sale puro de transactions; se excluyen del resultado (P&L) vía scope `notTransfer`._
 
 ### 4.7 Dashboard Administrativo
-- [ ] **Resumen del día:** alumnos asistiendo, prácticas, acompañamientos, eventos, ingresos, egresos, saldo del día. — _Fase 8_
-- [ ] **Estado del negocio (mes):** ingresos, egresos, resultado, margen %. — _Fase 8_
-- [ ] **Comunidad:** alumnos activos/nuevos, membresías activas/próximas a vencer, prácticas más concurridas, profesional con más reservas, terapia más solicitada, eventos realizados, % ocupación. — _Fase 8_
-- [ ] **Alertas:** membresías por vencer, taller con pocos inscriptos, clases completas con lista de espera, facturas pendientes, sesiones canceladas. — _Fase 8_
+- [x] **Resumen del día:** alumnos asistiendo, prácticas, acompañamientos, eventos, ingresos, egresos, saldo del día. — _Fase 8 (widget TodayOverview)_
+- [x] **Estado del negocio (mes):** ingresos, egresos, resultado, margen %. — _Fase 8 (widget BusinessState)_
+- [~] **Comunidad:** alumnos activos/nuevos, membresías activas/próximas a vencer, prácticas más concurridas, profesional con más reservas, terapia más solicitada, eventos realizados, % ocupación. — _Fase 8_ · _Hecho: activos, nuevos, membresías activas/por vencer (widget CommunityStats). Pendiente: rankings (prácticas/profesional/terapia más concurridos) y % ocupación._
+- [~] **Alertas:** membresías por vencer, taller con pocos inscriptos, clases completas con lista de espera, facturas pendientes, sesiones canceladas. — _Fase 8_ · _Hecho: membresías por vencer (widget-tabla). Pendiente: resto de alertas._
 
 ### 4.8 Reportes
 - [ ] Filtros: día/semana/mes/año, profesional, actividad, categoría, medio de pago. — _Fase 8_
 - [ ] Reportes sugeridos: ingresos por actividad, ingresos por profesional, ocupación de clases (promedio/asistencia/cancelaciones/no-shows), membresías (vendidas/vencidas/renovadas/tasa de renovación), alumnos (nuevos/activos/inactivos/asistencia promedio), balance económico (ingresos/egresos/resultado). — _Fase 8_
 
 ### 4.9 Liquidación de Honorarios
-- [ ] Config por profesional con esquema propio: monto fijo por clase, % por servicio, alquiler de consultorio, etc. (ej.: Eloisa fijo grupal + 80% tarot; Neli 70% Reiki/KAP; Magu % Diseño Humano; invitado % de workshop). — _Fase 8_
-- [ ] Cierre mensual automático: clases dictadas, sesiones realizadas, eventos facilitados, ingresos generados, honorarios a pagar. — _Fase 8_
+- [x] Config por profesional con esquema propio: monto fijo por clase, % por servicio, alquiler de consultorio, etc. (ej.: Eloisa fijo grupal + 80% tarot; Neli 70% Reiki/KAP; Magu % Diseño Humano; invitado % de workshop). — _Fase 8 (FeeScheme por actividad o por defecto, en la ficha del profesional)_
+- [x] Cierre mensual automático: clases dictadas, sesiones realizadas, eventos facilitados, ingresos generados, honorarios a pagar. — _Fase 8 (HonorariumService + página "Liquidación de honorarios" con selector de mes)_
 
 ---
 

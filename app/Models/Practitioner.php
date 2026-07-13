@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /** A teacher/therapist who leads activities. May be linked to a login User. */
@@ -43,6 +44,18 @@ class Practitioner extends Model
     public function activities(): BelongsToMany
     {
         return $this->belongsToMany(Activity::class)->withTimestamps();
+    }
+
+    /** Events this practitioner facilitates. */
+    public function events(): BelongsToMany
+    {
+        return $this->belongsToMany(Event::class)->withTimestamps();
+    }
+
+    /** Compensation rules (honorarios) for this practitioner. */
+    public function feeSchemes(): HasMany
+    {
+        return $this->hasMany(FeeScheme::class);
     }
 
     /** Full display name. */

@@ -11,6 +11,7 @@ use App\Actions\Memberships\SellMembership;
 use App\Enums\ActivityType;
 use App\Enums\AppointmentStatus;
 use App\Enums\EventStatus;
+use App\Enums\FeeType;
 use App\Enums\SessionStatus;
 use App\Enums\TransactionType;
 use App\Exceptions\AppointmentException;
@@ -22,6 +23,7 @@ use App\Models\Appointment;
 use App\Models\Category;
 use App\Models\CostCenter;
 use App\Models\Event;
+use App\Models\FeeScheme;
 use App\Models\MembershipPlan;
 use App\Models\PaymentMethod;
 use App\Models\Practitioner;
@@ -54,6 +56,41 @@ class DemoSeeder extends Seeder
         $this->seedEvents($students);
         $this->seedExpenses();
         $this->seedTransfers();
+        $this->seedFeeSchemes();
+    }
+
+    private function seedFeeSchemes(): void
+    {
+        // Fixed amount per group class as each practitioner's default, plus a few
+        // percentage rules for specific therapies. Idempotent by practitioner+activity.
+        $activities = Activity::whereIn('name', ['Tarot', 'Reiki', 'KAP', 'Diseño Humano'])
+            ->get()->keyBy('name');
+
+        foreach (Practitioner::all() as $practitioner) {
+            FeeScheme::updateOrCreate(
+                ['practitioner_id' => $practitioner->id, 'activity_id' => null],
+                ['type' => FeeType::FixedPerSession->value, 'fixed_amount' => 80_000],
+            );
+        }
+
+        $percentages = [
+            ['Valentina', 'Tarot', 80],
+            ['Camila', 'Reiki', 70],
+            ['Camila', 'KAP', 70],
+            ['Mateo', 'Diseño Humano', 60],
+        ];
+
+        foreach ($percentages as [$firstName, $activityName, $percent]) {
+            $practitioner = Practitioner::where('first_name', $firstName)->first();
+            $activity = $activities->get($activityName);
+
+            if ($practitioner && $activity) {
+                FeeScheme::updateOrCreate(
+                    ['practitioner_id' => $practitioner->id, 'activity_id' => $activity->id],
+                    ['type' => FeeType::Percentage->value, 'percentage' => $percent],
+                );
+            }
+        }
     }
 
     /** @return Collection<int, Student> */
