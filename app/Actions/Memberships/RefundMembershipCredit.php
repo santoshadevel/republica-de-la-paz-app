@@ -19,11 +19,11 @@ class RefundMembershipCredit
             return null;
         }
 
-        return $membership->movements()->create([
-            'type' => CreditMovementType::Refund,
-            'amount' => 1,
-            'reason' => 'Cancelación en plazo',
-            'booking_id' => $booking?->getKey(),
-        ]);
+        return $membership->recordMovement(
+            CreditMovementType::Refund,
+            1,
+            'Cancelación en plazo',
+            $booking,
+        );
     }
 }

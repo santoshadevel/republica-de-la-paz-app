@@ -43,6 +43,10 @@ class DashboardTest extends TestCase
 
     public function test_today_summary_counts_sessions_bookings_and_income(): void
     {
+        // Freeze at a fixed morning so "now + 2h" stays within today regardless of
+        // the wall-clock hour the suite runs at (avoids a midnight-rollover flake).
+        $this->travelTo(now()->startOfDay()->addHours(8));
+
         $this->seed(PlanSeeder::class);
         $this->seed(AccountingCatalogSeeder::class);
 

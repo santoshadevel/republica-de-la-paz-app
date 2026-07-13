@@ -70,6 +70,11 @@ Especialidades (landing): Reiki, Sound Healing Individual, Medicina Ayurvédica,
 
 > Precios sembrados en `database/seeders/PlanSeeder.php` (moneda configurable; Gs = 0 decimales).
 
+> **Catálogo de pases público (`/portal/pases`).** La página que lista los pases/membresías
+> es **pública** (sin login): cualquier visitante puede verla. Recién al hacer clic en
+> **"Solicitar"** se pide identificarse, ofreciendo **registrarse o iniciar sesión**; tras
+> autenticarse continúa el flujo de solicitud/compra del pase. — _Fase 9 (front público)_
+
 ### 1.7 Asamblea: Nuestros eventos
 - [ ] Espacio para: Workshops, Charlas, Retiros, Círculos, Encuentros especiales. — _Fase 6_
 

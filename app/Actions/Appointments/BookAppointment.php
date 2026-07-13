@@ -2,7 +2,6 @@
 
 namespace App\Actions\Appointments;
 
-use App\Enums\AppointmentStatus;
 use App\Exceptions\AppointmentException;
 use App\Models\Appointment;
 use App\Models\Student;
@@ -26,12 +25,7 @@ class BookAppointment
                 throw AppointmentException::notBookable();
             }
 
-            $locked->update([
-                'student_id' => $student->getKey(),
-                'status' => AppointmentStatus::Booked,
-            ]);
-
-            return $locked;
+            return $locked->assignTo($student);
         });
     }
 }

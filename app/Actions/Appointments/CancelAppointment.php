@@ -22,12 +22,7 @@ class CancelAppointment
 
         $fee = $this->lateCancellationFee($appointment);
 
-        $appointment->update([
-            'status' => AppointmentStatus::Cancelled,
-            'cancellation_fee' => $fee,
-        ]);
-
-        return $appointment;
+        return $appointment->markCancelled($fee);
     }
 
     /** The fee owed for a late cancellation, or null when none applies. */

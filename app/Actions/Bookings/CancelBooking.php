@@ -24,10 +24,7 @@ class CancelBooking
         }
 
         return DB::transaction(function () use ($booking) {
-            $booking->update([
-                'status' => BookingStatus::Cancelled,
-                'cancelled_at' => now(),
-            ]);
+            $booking->cancel();
 
             if ($this->refundable($booking) && $booking->membership) {
                 $this->refund->execute($booking->membership, $booking);

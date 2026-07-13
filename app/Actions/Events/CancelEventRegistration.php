@@ -15,11 +15,6 @@ class CancelEventRegistration
             throw EventException::notCancellable();
         }
 
-        $registration->update([
-            'status' => EventRegistrationStatus::Cancelled,
-            'cancelled_at' => now(),
-        ]);
-
-        return $registration;
+        return $registration->cancel();
     }
 }

@@ -15,8 +15,6 @@ class CompleteAppointment
             throw AppointmentException::notCompletable();
         }
 
-        $appointment->update(['status' => AppointmentStatus::Completed]);
-
-        return $appointment;
+        return $appointment->markCompleted();
     }
 }

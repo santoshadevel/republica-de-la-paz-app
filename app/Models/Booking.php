@@ -57,4 +57,34 @@ class Booking extends Model
     {
         return $this->hasMany(CreditMovement::class, 'booking_id');
     }
+
+    /** Reserve a seat on a session for a student, paid by the given membership. */
+    public static function place(ScheduledSession $session, Student $student, StudentMembership $membership): self
+    {
+        return $session->bookings()->create([
+            'student_id' => $student->getKey(),
+            'student_membership_id' => $membership->getKey(),
+            'status' => BookingStatus::Booked,
+            'booked_at' => now(),
+        ]);
+    }
+
+    /** Record attendance (or a no-show) for this booking. */
+    public function markAttendance(bool $attended): self
+    {
+        $this->update(['status' => $attended ? BookingStatus::Attended : BookingStatus::NoShow]);
+
+        return $this;
+    }
+
+    /** Cancel this booking and free its seat. */
+    public function cancel(): self
+    {
+        $this->update([
+            'status' => BookingStatus::Cancelled,
+            'cancelled_at' => now(),
+        ]);
+
+        return $this;
+    }
 }

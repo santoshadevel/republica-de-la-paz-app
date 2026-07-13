@@ -38,11 +38,7 @@ class RegisterForEvent
                 throw EventException::full();
             }
 
-            return $locked->registrations()->create([
-                'student_id' => $student->getKey(),
-                'status' => EventRegistrationStatus::Registered,
-                'registered_at' => now(),
-            ]);
+            return EventRegistration::place($locked, $student);
         });
     }
 

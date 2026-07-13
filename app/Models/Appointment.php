@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Casts\MoneyCast;
 use App\Enums\AppointmentStatus;
+use App\Support\Money;
 use Database\Factories\AppointmentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -70,5 +71,35 @@ class Appointment extends Model
     {
         return $this->status === AppointmentStatus::Available
             && $this->starts_at->isFuture();
+    }
+
+    /** Book this slot for a student. */
+    public function assignTo(Student $student): self
+    {
+        $this->update([
+            'student_id' => $student->getKey(),
+            'status' => AppointmentStatus::Booked,
+        ]);
+
+        return $this;
+    }
+
+    /** Cancel this appointment, storing any late-cancellation fee owed. */
+    public function markCancelled(?Money $fee = null): self
+    {
+        $this->update([
+            'status' => AppointmentStatus::Cancelled,
+            'cancellation_fee' => $fee,
+        ]);
+
+        return $this;
+    }
+
+    /** Mark a booked appointment as completed. */
+    public function markCompleted(): self
+    {
+        $this->update(['status' => AppointmentStatus::Completed]);
+
+        return $this;
     }
 }

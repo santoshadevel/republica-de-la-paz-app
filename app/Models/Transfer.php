@@ -44,6 +44,12 @@ class Transfer extends Model
         });
     }
 
+    /** Persist an internal transfer between two accounts. */
+    public static function record(array $attributes): self
+    {
+        return static::create($attributes);
+    }
+
     /** The two transactions (expense + income) this transfer generated. */
     public function transactions(): MorphMany
     {

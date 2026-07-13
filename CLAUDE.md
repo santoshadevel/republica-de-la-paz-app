@@ -70,6 +70,9 @@ cubrirá ~99% de un rol de agendamiento/coordinación. Reglas transversales:
 - **API + MCP:** la API REST (Sanctum) y el servidor MCP encima se construyen **más
   adelante** (cuando exista el dominio de agenda, ~tras Fase 5/6). Hasta entonces, la
   disciplina de services/actions deja todo listo para exponerlo sin refactor.
+- **Bot AI (qué hace):** especificado en [docs/BOT.md](docs/BOT.md) — capacidades,
+  mapeo bot→dominio (Actions/Services), superficie API/MCP y gaps. Fuente de verdad del
+  agente, análoga a REQUISITOS.md para el negocio.
 
 ## Convención de idioma (IMPORTANTE)
 
@@ -113,6 +116,25 @@ El entrypoint (`docker/php/entrypoint.sh`) instala dependencias, genera `APP_KEY
 espera a MySQL y corre migraciones automáticamente al levantar el contenedor `app`.
 
 ## Convenciones de código
+
+### Regla #1 — Escrituras SIEMPRE en el modelo (INNEGOCIABLE)
+
+**Todos los queries de escritura (`create`, `update`, `delete`, `save`, `insert`,
+upserts, incrementos/decrementos, sync de relaciones) tienen que vivir 100% en el
+modelo Eloquent correspondiente** — nunca en un Resource de Filament, controller,
+service, action, seeder, command, job ni en ningún otro lado. Los demás componentes
+llaman a métodos del modelo (p. ej. `$student->consumeCredit(...)`, `Booking::place(...)`);
+no arman ni ejecutan el query de escritura por su cuenta.
+
+- **Nunca queries en los `.blade`.** Las vistas no leen ni escriben datos: reciben todo
+  ya resuelto desde el modelo/componente. Ni siquiera lecturas (`Model::where(...)`) van
+  en un Blade.
+- Los **services/actions** siguen siendo el lugar de la lógica de negocio con tiempo
+  (saldo, cancelaciones, cupos, concurrencia), pero **orquestan**: la mutación final la
+  hace un método del modelo. El service decide *cuándo/por qué*; el modelo ejecuta *el
+  cómo* de la escritura.
+- Esto mantiene la lógica de persistencia en un solo lugar, testeable y reutilizable por
+  Filament y por la futura API/MCP sin duplicar reglas.
 
 - Seguir las **convenciones oficiales de Laravel** y formatear con **Pint**
   (`docker compose exec app ./vendor/bin/pint`).
@@ -180,6 +202,13 @@ Registro de evaluaciones (Regla #0):
   Stripe/Cashier, no a pago manual + saldo de prácticas.
 - **Dinero:** implementación propia liviana (`App\Support\Money` + cast) sobre features
   nativas; suficiente para el caso y evita acoplar una lib de money pesada.
+- **Disponibilidad del profesional:** `spatie/opening-hours` (adoptado, aprobado por el
+  usuario). 1.7k★, v4.2.2 (jul-2026), PHP ^8.2. Es librería de *lógica* (value object): la
+  persistencia queda en tablas propias (`practitioner_availabilities` + `_exceptions`) y el
+  modelo `Practitioner` construye el `OpeningHours` al vuelo (`openingHours()`, `isAvailableAt()`).
+- **Calendario (Agenda):** FullCalendar JS vendorizado en `public/js/vendor/fullcalendar/`
+  (20.6k★, MIT) sobre página Filament propia; los wrappers PHP (saade 405★, guava 306★) se
+  descartaron por <1000★.
 
 ## Reglas de negocio clave (referencia rápida)
 

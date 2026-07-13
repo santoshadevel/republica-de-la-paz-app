@@ -5,6 +5,8 @@ namespace App\Filament\Resources\Practitioners;
 use App\Filament\Resources\Practitioners\Pages\CreatePractitioner;
 use App\Filament\Resources\Practitioners\Pages\EditPractitioner;
 use App\Filament\Resources\Practitioners\Pages\ListPractitioners;
+use App\Filament\Resources\Practitioners\RelationManagers\AvailabilityExceptionsRelationManager;
+use App\Filament\Resources\Practitioners\RelationManagers\AvailabilityRelationManager;
 use App\Filament\Resources\Practitioners\RelationManagers\FeeSchemesRelationManager;
 use App\Filament\Resources\Practitioners\Schemas\PractitionerForm;
 use App\Filament\Resources\Practitioners\Tables\PractitionersTable;
@@ -51,6 +53,8 @@ class PractitionerResource extends Resource
     public static function getRelations(): array
     {
         return [
+            AvailabilityRelationManager::class,
+            AvailabilityExceptionsRelationManager::class,
             FeeSchemesRelationManager::class,
         ];
     }

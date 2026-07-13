@@ -40,4 +40,35 @@ class EventRegistration extends Model
     {
         return $this->belongsTo(Student::class);
     }
+
+    /** Register a student for an event (seat taken). */
+    public static function place(Event $event, Student $student): self
+    {
+        return $event->registrations()->create([
+            'student_id' => $student->getKey(),
+            'status' => EventRegistrationStatus::Registered,
+            'registered_at' => now(),
+        ]);
+    }
+
+    /** Record attendance (or a no-show) for this registration. */
+    public function markAttendance(bool $attended): self
+    {
+        $this->update([
+            'status' => $attended ? EventRegistrationStatus::Attended : EventRegistrationStatus::NoShow,
+        ]);
+
+        return $this;
+    }
+
+    /** Cancel this registration and free the seat. */
+    public function cancel(): self
+    {
+        $this->update([
+            'status' => EventRegistrationStatus::Cancelled,
+            'cancelled_at' => now(),
+        ]);
+
+        return $this;
+    }
 }

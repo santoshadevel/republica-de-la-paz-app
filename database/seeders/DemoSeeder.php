@@ -14,6 +14,7 @@ use App\Enums\EventStatus;
 use App\Enums\FeeType;
 use App\Enums\SessionStatus;
 use App\Enums\TransactionType;
+use App\Enums\Weekday;
 use App\Exceptions\AppointmentException;
 use App\Exceptions\BookingException;
 use App\Exceptions\EventException;
@@ -27,6 +28,8 @@ use App\Models\FeeScheme;
 use App\Models\MembershipPlan;
 use App\Models\PaymentMethod;
 use App\Models\Practitioner;
+use App\Models\PractitionerAvailability;
+use App\Models\PractitionerAvailabilityException;
 use App\Models\Room;
 use App\Models\ScheduledSession;
 use App\Models\Student;
@@ -44,6 +47,10 @@ class DemoSeeder extends Seeder
 {
     public function run(): void
     {
+        // Idempotent and independent of the demo guard below, so it also backfills
+        // availability on an already-seeded database.
+        $this->seedAvailability();
+
         if (StudentMembership::query()->exists()) {
             return; // demo already seeded
         }
@@ -57,6 +64,37 @@ class DemoSeeder extends Seeder
         $this->seedExpenses();
         $this->seedTransfers();
         $this->seedFeeSchemes();
+    }
+
+    private function seedAvailability(): void
+    {
+        // Every practitioner works Mon/Wed/Fri, mornings and late afternoons.
+        // Tue/Thu/weekends stay unavailable, so recurring generation there is skipped.
+        $blocks = [
+            [Weekday::Monday, '09:00', '13:00'],
+            [Weekday::Monday, '16:00', '20:00'],
+            [Weekday::Wednesday, '09:00', '13:00'],
+            [Weekday::Wednesday, '16:00', '20:00'],
+            [Weekday::Friday, '09:00', '13:00'],
+        ];
+
+        foreach (Practitioner::all() as $practitioner) {
+            foreach ($blocks as [$day, $start, $end]) {
+                PractitionerAvailability::updateOrCreate(
+                    ['practitioner_id' => $practitioner->id, 'day_of_week' => $day->value, 'start_time' => $start],
+                    ['end_time' => $end],
+                );
+            }
+        }
+
+        // One demo closed day (holiday) for the first practitioner.
+        $first = Practitioner::orderBy('id')->first();
+        if ($first !== null) {
+            PractitionerAvailabilityException::updateOrCreate(
+                ['practitioner_id' => $first->id, 'date' => now()->addWeeks(2)->startOfWeek()->toDateString()],
+                ['is_available' => false, 'reason' => 'Feriado (demo)'],
+            );
+        }
     }
 
     private function seedFeeSchemes(): void

@@ -34,7 +34,7 @@ class RecordTransaction
         // Route to the payment method's default account when none is given.
         $account ??= $paymentMethod?->defaultAccount;
 
-        $transaction = new Transaction(array_merge([
+        return Transaction::record(array_merge([
             'type' => $type,
             'amount' => $amount->minorAmount,
             'occurred_on' => $attributes['occurred_on'] ?? Carbon::now()->toDateString(),
@@ -42,14 +42,6 @@ class RecordTransaction
             'cost_center_id' => $costCenter?->getKey(),
             'payment_method_id' => $paymentMethod?->getKey(),
             'account_id' => $account?->getKey(),
-        ], collect($attributes)->except('occurred_on')->all()));
-
-        if ($source !== null) {
-            $transaction->source()->associate($source);
-        }
-
-        $transaction->save();
-
-        return $transaction;
+        ], collect($attributes)->except('occurred_on')->all()), $source);
     }
 }

@@ -40,7 +40,7 @@ class SellMembership
             $creditsTotal = $plan->credits();
             $isUnlimited = $plan->isUnlimited();
 
-            $membership = $student->memberships()->create(array_merge([
+            $membership = $student->openMembership(array_merge([
                 'membership_plan_id' => $plan->getKey(),
                 'credits_total' => $isUnlimited ? null : $creditsTotal,
                 'is_unlimited' => $isUnlimited,
@@ -54,11 +54,11 @@ class SellMembership
             // Seed the ledger with the granted credits (unlimited grants none —
             // its bookings are recorded in Fase 5 without touching the balance).
             if (! $isUnlimited && $creditsTotal !== null && $creditsTotal > 0) {
-                $membership->movements()->create([
-                    'type' => CreditMovementType::Sale,
-                    'amount' => $creditsTotal,
-                    'reason' => "Venta de {$plan->name}",
-                ]);
+                $membership->recordMovement(
+                    CreditMovementType::Sale,
+                    $creditsTotal,
+                    "Venta de {$plan->name}",
+                );
             }
 
             // Accounting: record the income for this sale (only when we know how

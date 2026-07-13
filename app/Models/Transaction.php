@@ -83,6 +83,20 @@ class Transaction extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    /** Persist an economic movement, optionally linked to the record that generated it. */
+    public static function record(array $attributes, ?Model $source = null): self
+    {
+        $transaction = new self($attributes);
+
+        if ($source !== null) {
+            $transaction->source()->associate($source);
+        }
+
+        $transaction->save();
+
+        return $transaction;
+    }
+
     public function scopeIncome(Builder $query): Builder
     {
         return $query->where('type', TransactionType::Income->value);

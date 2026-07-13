@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
+use Spatie\OpeningHours\OpeningHours;
 
 /** A teacher/therapist who leads activities. May be linked to a login User. */
 #[Fillable([
@@ -58,9 +60,75 @@ class Practitioner extends Model
         return $this->hasMany(FeeScheme::class);
     }
 
+    /** Recurring weekly availability blocks. */
+    public function availabilities(): HasMany
+    {
+        return $this->hasMany(PractitionerAvailability::class);
+    }
+
+    /** Date-specific availability overrides (closed days / special hours). */
+    public function availabilityExceptions(): HasMany
+    {
+        return $this->hasMany(PractitionerAvailabilityException::class);
+    }
+
     /** Full display name. */
     public function fullName(): string
     {
         return trim("{$this->first_name} {$this->last_name}");
+    }
+
+    /** Whether this practitioner has any availability configured at all. */
+    public function hasAvailabilitySchedule(): bool
+    {
+        return $this->availabilities()->exists() || $this->availabilityExceptions()->exists();
+    }
+
+    /** Build the spatie/opening-hours object from the stored blocks and exceptions. */
+    public function openingHours(): OpeningHours
+    {
+        $schedule = [];
+
+        foreach ($this->availabilities as $block) {
+            $schedule[$block->day_of_week->spatieKey()][] = $block->range();
+        }
+
+        $exceptions = [];
+        foreach ($this->availabilityExceptions as $exception) {
+            $key = $exception->date->format('Y-m-d');
+
+            if ($exception->range() === null) {
+                $exceptions[$key] = []; // closed that day
+            } else {
+                $exceptions[$key][] = $exception->range();
+            }
+        }
+
+        if ($exceptions !== []) {
+            $schedule['exceptions'] = $exceptions;
+        }
+
+        return OpeningHours::create($schedule);
+    }
+
+    /**
+     * Whether this practitioner is available for the whole [start, end] range.
+     * A practitioner with no schedule configured is treated as unconstrained.
+     */
+    public function isAvailableAt(Carbon $start, Carbon $end): bool
+    {
+        if (! $this->hasAvailabilitySchedule()) {
+            return true;
+        }
+
+        $hours = $this->openingHours();
+
+        if (! $hours->isOpenAt($start)) {
+            return false;
+        }
+
+        $close = $hours->nextClose($start);
+
+        return $close !== false && $end <= $close;
     }
 }

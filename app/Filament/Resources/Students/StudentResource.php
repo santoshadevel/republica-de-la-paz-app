@@ -5,6 +5,9 @@ namespace App\Filament\Resources\Students;
 use App\Filament\Resources\Students\Pages\CreateStudent;
 use App\Filament\Resources\Students\Pages\EditStudent;
 use App\Filament\Resources\Students\Pages\ListStudents;
+use App\Filament\Resources\Students\RelationManagers\AppointmentsRelationManager;
+use App\Filament\Resources\Students\RelationManagers\BookingsRelationManager;
+use App\Filament\Resources\Students\RelationManagers\EventRegistrationsRelationManager;
 use App\Filament\Resources\Students\RelationManagers\MembershipsRelationManager;
 use App\Filament\Resources\Students\Schemas\StudentForm;
 use App\Filament\Resources\Students\Tables\StudentsTable;
@@ -52,6 +55,9 @@ class StudentResource extends Resource
     {
         return [
             MembershipsRelationManager::class,
+            BookingsRelationManager::class,
+            AppointmentsRelationManager::class,
+            EventRegistrationsRelationManager::class,
         ];
     }
 

@@ -29,11 +29,11 @@ class AdjustMembershipCredits
             throw new InvalidArgumentException('El ajuste manual requiere un motivo.');
         }
 
-        return $membership->movements()->create([
-            'type' => CreditMovementType::ManualAdjust,
-            'amount' => $amount,
-            'reason' => $reason,
-            'created_by' => $by?->getKey(),
-        ]);
+        return $membership->recordMovement(
+            CreditMovementType::ManualAdjust,
+            $amount,
+            $reason,
+            by: $by,
+        );
     }
 }

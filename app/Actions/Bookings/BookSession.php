@@ -60,12 +60,7 @@ class BookSession
                 throw BookingException::noCredit();
             }
 
-            $booking = $locked->bookings()->create([
-                'student_id' => $student->getKey(),
-                'student_membership_id' => $membership->getKey(),
-                'status' => BookingStatus::Booked,
-                'booked_at' => now(),
-            ]);
+            $booking = Booking::place($locked, $student, $membership);
 
             $this->consume->execute($membership, $booking);
 

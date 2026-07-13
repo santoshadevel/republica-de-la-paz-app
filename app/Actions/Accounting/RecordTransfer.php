@@ -41,7 +41,7 @@ class RecordTransfer
             $occurredOn = $attributes['occurred_on'] ?? Carbon::now()->toDateString();
             $note = $attributes['description'] ?? null;
 
-            $transfer = Transfer::create(array_merge([
+            $transfer = Transfer::record(array_merge([
                 'from_account_id' => $from->getKey(),
                 'to_account_id' => $to->getKey(),
                 'amount' => $amount->minorAmount,

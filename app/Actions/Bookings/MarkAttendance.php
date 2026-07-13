@@ -18,10 +18,6 @@ class MarkAttendance
             throw BookingException::notCancellable();
         }
 
-        $booking->update([
-            'status' => $attended ? BookingStatus::Attended : BookingStatus::NoShow,
-        ]);
-
-        return $booking;
+        return $booking->markAttendance($attended);
     }
 }

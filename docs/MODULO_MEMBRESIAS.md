@@ -148,3 +148,31 @@ venta (Fase 7); notificación "pase próximo a vencer / pocas prácticas" (Fase 
 
 - `price_paid` + `currency_code` como **snapshot**; nada de Guaraníes hardcodeado.
 - Créditos, ilimitado y vigencia salen del `MembershipPlan` (datos), nunca constantes en código.
+
+## 11. Extensión futura — membresías que habilitan contenido/accesos digitales (backlog)
+
+> **Idea nueva, no proveniente del PDF.** Anotada para no perderla; se re-evalúa como fase
+> aparte (probablemente junto a la webapp del alumno / landing, Fase 9+). Requiere confirmar
+> alcance con el usuario antes de construir.
+
+Además del **pool de créditos de práctica** (lo modelado arriba), una membresía debe poder
+**habilitar entitlements digitales**, p. ej.:
+
+- **Contenido / blog:** posts o secciones exclusivas para miembros.
+- **Series de videos (cursos):** biblioteca de cursos on-demand desbloqueada por el plan.
+- **Accesos a links:** URLs de llamadas/encuentros online (Zoom/Meet), salas o recursos
+  gated por membresía.
+
+**Enfoque tentativo (comunidad primero — Regla #0, a evaluar cuando se retome):**
+
+- Modelar los beneficios como **entitlements** en el `MembershipPlan` (no hardcodear tipos):
+  extender el JSON `rules`/cobertura del plan con un set de *features* (`content`, `course`,
+  `call_link`, …) en vez de columnas nuevas por cada tipo → mantiene white-label y no ata el
+  dominio a Santosha.
+- La **autorización** de acceso se resuelve por Policy/Gate: "¿la membresía vigente del alumno
+  incluye la feature X / el curso Y?" — reutilizable por Filament y por la futura API/MCP.
+- El **contenido** (cursos/videos/posts) es un dominio propio a diseñar (¿modelo `Course`,
+  `Lesson`, `Resource`?); antes de construirlo, **investigar paquetes** de LMS/contenido para
+  Laravel/Filament y registrar la decisión aquí.
+- A diferencia del pool de créditos, estos accesos **no se consumen** (son binarios: habilitado
+  mientras la membresía esté vigente), así que no generan `CreditMovement`.

@@ -87,4 +87,10 @@ class ScheduledSession extends Model
     {
         return $this->seatsAvailable() <= 0;
     }
+
+    /** Persist a new dated occurrence of a group activity. */
+    public static function schedule(array $attributes): self
+    {
+        return static::create($attributes);
+    }
 }

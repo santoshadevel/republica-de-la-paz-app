@@ -108,4 +108,30 @@ class StudentMembership extends Model
             ->where('status', MembershipStatus::Active->value)
             ->whereDate('ends_at', '>=', now()->toDateString());
     }
+
+    /** Append a signed entry to this membership's credit ledger. */
+    public function recordMovement(
+        CreditMovementType $type,
+        int $amount,
+        string $reason,
+        ?Booking $booking = null,
+        ?User $by = null,
+    ): CreditMovement {
+        return $this->movements()->create([
+            'type' => $type,
+            'amount' => $amount,
+            'reason' => $reason,
+            'booking_id' => $booking?->getKey(),
+            'created_by' => $by?->getKey(),
+        ]);
+    }
+
+    /** Mark active memberships past their validity window as expired; returns the count. */
+    public static function expireOverdue(): int
+    {
+        return static::query()
+            ->where('status', MembershipStatus::Active->value)
+            ->whereDate('ends_at', '<', now()->toDateString())
+            ->update(['status' => MembershipStatus::Expired->value]);
+    }
 }

@@ -15,10 +15,6 @@ class MarkEventAttendance
             throw EventException::notCancellable();
         }
 
-        $registration->update([
-            'status' => $attended ? EventRegistrationStatus::Attended : EventRegistrationStatus::NoShow,
-        ]);
-
-        return $registration;
+        return $registration->markAttendance($attended);
     }
 }

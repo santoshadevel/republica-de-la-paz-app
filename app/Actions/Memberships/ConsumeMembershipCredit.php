@@ -19,11 +19,11 @@ class ConsumeMembershipCredit
             return null;
         }
 
-        return $membership->movements()->create([
-            'type' => CreditMovementType::Consumption,
-            'amount' => -1,
-            'reason' => 'Reserva de práctica grupal',
-            'booking_id' => $booking?->getKey(),
-        ]);
+        return $membership->recordMovement(
+            CreditMovementType::Consumption,
+            -1,
+            'Reserva de práctica grupal',
+            $booking,
+        );
     }
 }

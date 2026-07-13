@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Enums\MembershipStatus;
 use App\Models\StudentMembership;
 use Illuminate\Console\Command;
 
@@ -18,10 +17,7 @@ class ExpireMemberships extends Command
 
     public function handle(): int
     {
-        $count = StudentMembership::query()
-            ->where('status', MembershipStatus::Active->value)
-            ->whereDate('ends_at', '<', now()->toDateString())
-            ->update(['status' => MembershipStatus::Expired->value]);
+        $count = StudentMembership::expireOverdue();
 
         $this->info("Membresías vencidas: {$count}.");
 
