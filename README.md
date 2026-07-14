@@ -2,9 +2,11 @@
 
 ERP liviano modular (Laravel 13 + FilamentPHP 5 + MySQL) sobre Docker.
 
-- [SPEC.md](SPEC.md) — objetivo, alcance, decisiones y plan de fases.
-- [docs/REQUISITOS.md](docs/REQUISITOS.md) — requisitos del cliente transcritos del PDF (fuente de verdad, checklist por fase).
-- [CLAUDE.md](CLAUDE.md) — convenciones para trabajar en el repo.
+- [docs/REQUISITOS.md](docs/REQUISITOS.md) — requisitos del cliente transcritos del PDF (fuente de verdad del negocio) + plan y estado por fase.
+- [CLAUDE.md](CLAUDE.md) — objetivo, convenciones, decisiones de arquitectura y estado general.
+
+> `SPEC.md` no es un documento de este repo: lo genera `/global-worktree` dentro de cada
+> worktree para describir **un cambio puntual**, y nunca se commitea. Ver CLAUDE.md.
 
 ## Stack
 

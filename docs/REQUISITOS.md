@@ -5,11 +5,12 @@
 > fase asignada. Al cerrar una fase, marcar los ítems correspondientes. Si el cliente entrega un PDF
 > nuevo, actualizar este archivo (y dejar el PDF binario en `docs/`).
 >
-> El **plan de fases** y las decisiones técnicas están en [../SPEC.md](../SPEC.md).
-> Las **convenciones** (idioma, white-label, comunidad-primero) en [../CLAUDE.md](../CLAUDE.md).
+> Las **decisiones técnicas** y las **convenciones** (idioma, white-label, comunidad-primero)
+> están en [../CLAUDE.md](../CLAUDE.md). Este archivo es el **plan por fases**: la fase de cada
+> requisito se anota acá mismo, en su ítem.
 >
-> Leyenda de estado: `[ ]` pendiente · `[~]` parcial · `[x]` hecho. Columna **Fase** = dónde se
-> implementa (ver SPEC.md).
+> Leyenda de estado: `[ ]` pendiente · `[~]` parcial · `[x]` hecho. La **fase** de cada ítem va
+> anotada en el propio ítem (_Fase N_).
 
 ---
 
@@ -92,7 +93,7 @@ Especialidades (landing): Reiki, Sound Healing Individual, Medicina Ayurvédica,
 
 ## 2. Módulo Agendamiento de Alumnos (págs. 10–17)
 
-> **Decisión (ver SPEC.md):** el autoservicio del alumno vive en el **frontend público con login**, no en un panel Filament de alumno.
+> **Decisión (ver [../CLAUDE.md](../CLAUDE.md)):** el autoservicio del alumno vive en el **frontend público con login**, no en un panel Filament de alumno.
 
 ### 2.1 Perfil del Alumno
 - [~] Muestra: nombre, contacto, membresía/pase activo, fecha inicio y **vencimiento** del pase. — _Fase 3/4_ · _Datos + ficha admin listos (`currentMembership`); perfil de cara al alumno en el front público → Fase 9._
@@ -194,7 +195,7 @@ Categorías de ingreso (a sembrar): **Membresías** (República, Comunidad, Ciud
 - [x] Efectivo, transferencia bancaria, Bancard POS, tarjeta crédito, tarjeta débito (para conciliar caja). — _Fase 7_
 
 ### 4.5 Facturación
-> **Decisión white-label (SPEC.md):** modelar genérico (`tax_id`, `tax_condition`, módulo activable), no "RUC/IVA" fijos.
+> **Decisión white-label (ver [../CLAUDE.md](../CLAUDE.md)):** modelar genérico (`tax_id`, `tax_condition`, módulo activable), no "RUC/IVA" fijos.
 - [x] Por venta: ¿se emitió factura?, N° de factura, nombre/razón social, RUC (tax_id), condición IVA (tax_condition). — _Fase 7 (campos invoice_* en Transaction)_
 - [ ] Exportar reporte para el contador. — _Fase 8 (reportes)_
 
