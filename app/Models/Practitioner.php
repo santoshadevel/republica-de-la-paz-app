@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Database\Factories\PractitionerFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,6 +12,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Spatie\OpeningHours\OpeningHours;
 
 /** A teacher/therapist who leads activities. May be linked to a login User. */
@@ -22,6 +25,7 @@ use Spatie\OpeningHours\OpeningHours;
     'phone',
     'identity_number',
     'bio',
+    'avatar_path',
     'is_active',
 ])]
 class Practitioner extends Model
@@ -76,6 +80,29 @@ class Practitioner extends Model
     public function fullName(): string
     {
         return trim("{$this->first_name} {$this->last_name}");
+    }
+
+    /** Public URL of the portrait, or null when none was uploaded. */
+    public function avatarUrl(): ?string
+    {
+        return filled($this->avatar_path)
+            ? Storage::disk('public')->url($this->avatar_path)
+            : null;
+    }
+
+    /** Initials, used as the portrait fallback on the landing. */
+    public function initials(): string
+    {
+        return Str::of($this->first_name)->substr(0, 1)
+            ->append(Str::of($this->last_name)->substr(0, 1))
+            ->upper()
+            ->value();
+    }
+
+    /** Practitioners shown publicly, in a stable order. */
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('is_active', true)->orderBy('first_name');
     }
 
     /** Whether this practitioner has any availability configured at all. */

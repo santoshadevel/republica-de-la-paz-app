@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\ActivityType;
 use Database\Factories\ActivityFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -33,6 +34,18 @@ class Activity extends Model
             'default_duration_minutes' => 'integer',
             'is_active' => 'boolean',
         ];
+    }
+
+    /** Activities currently on offer, in a stable order. */
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('is_active', true)->orderBy('name');
+    }
+
+    /** Narrow the catalog to a single kind of activity. */
+    public function scopeOfType(Builder $query, ActivityType $type): Builder
+    {
+        return $query->where('type', $type);
     }
 
     /** Default room where this activity usually takes place. */

@@ -1,6 +1,7 @@
 <?php
 
 use App\Actions\Auth\VerifyStudentEmail;
+use App\Http\Controllers\LandingController;
 use App\Livewire\Auth\Login;
 use App\Livewire\Auth\Register;
 use App\Livewire\Auth\VerifyEmail;
@@ -12,7 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'public.home')->name('home');
+Route::get('/', LandingController::class)->name('home');
 
 Route::middleware('guest')->group(function () {
     Route::get('/ingresar', Login::class)->name('login');

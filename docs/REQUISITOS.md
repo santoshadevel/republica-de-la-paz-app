@@ -15,7 +15,7 @@
 
 ## 0. Necesidades macro (pág. 1)
 
-- [ ] **Landing Page** con info de servicios/horarios + posibilidad de pagar e inscribirse a clases. Ref: asanagroove.com (menos su calendario). — _Fase 9_
+- [~] **Landing Page** con info de servicios/horarios + posibilidad de pagar e inscribirse a clases. Ref: asanagroove.com (menos su calendario). — _Fase 9_ · _Hecho: landing pública completa (La República, Constitución, acompañamientos, referentes, pases con precio, asamblea, FAQ, contacto). Pendiente: horarios/calendario público y el flujo de pago/inscripción del visitante (hoy los CTA llevan al registro/portal)._
 - [ ] **Sistema de Agendamientos** de alumnos: clases semanales, sesiones individuales, eventos. Ref calendario: theyogaclubbarcelona.com. Perfil con clases habilitadas que se restan al agendar. — _Fase 5/6_
 - [ ] **Sistema Administrativo y Contable**: costos, ingresos, facturación, vencimiento de cuotas, ingresos/egresos por cuenta contable y categoría. — _Fase 7_
 - [ ] **CRM** de clientes, alumnos y terapeutas. — _Fase 3_
@@ -25,10 +25,10 @@
 ## 1. Landing pública (págs. 1–10)
 
 ### 1.1 La República ("Sobre Nosotros")
-- [ ] Sección "La República": qué es Santosha, por qué "República de la Paz", importancia de la comunidad, visión de coexistencia de disciplinas. — _Fase 9_
+- [x] Sección "La República": qué es Santosha, por qué "República de la Paz", importancia de la comunidad, visión de coexistencia de disciplinas. — _Fase 9_
 
 ### 1.2 Constitución de la República
-- [ ] Publicar el texto de la Constitución (Artículos 1–5 + Disposición final). Es copy de landing, no lógica. — _Fase 9_
+- [x] Publicar el texto de la Constitución (Artículos 1–5 + Disposición final). Es copy de landing, no lógica. — _Fase 9_ · _Copy en `App\Support\LandingContent::constitution()`, recorrido por la vista._
 
 ### 1.3 Sesiones semanales (2 salas en simultáneo)
 - [ ] Vista de horario semanal. **El calendario debe soportar 2 salas en paralelo por franja.** — _Fase 5_
@@ -56,17 +56,22 @@ Especialidades (landing): Reiki, Sound Healing Individual, Medicina Ayurvédica,
 - [~] Cada especialidad muestra: descripción breve, **profesional responsable**, duración, botón de reserva. — _Fase 6 (dominio + agenda admin listos; vista pública de reserva → Fase 9)_
 
 ### 1.5 Referentes de la República (equipo)
-- [ ] Perfiles con disciplinas + biografía breve: — _Fase 3 (datos) / Fase 9 (landing)_
+- [x] Perfiles con disciplinas + biografía breve: — _Fase 3 (datos) / Fase 9 (landing)_ · _Sección "Referentes" desde `Practitioner` (avatar + bio + actividades); avatar cargable desde el admin._
   - Eloisa Carmona: Yoga, Meditación, Respiración Consciente, Tarot.
   - Neli Duarte: Yoga, Sound Healing, Reiki, KAP.
   - Magu Venialgo: Yoga, Diseño Humano, Meditación.
-- [ ] Sección "Ciudadanos de la República" preparada para sumar futuros profesionales/colaboradores. — _Fase 9_
+- [x] Sección "Ciudadanos de la República" preparada para sumar futuros profesionales/colaboradores. — _Fase 9_
 
 ### 1.6 Membresías y Pases (landing) — precios de referencia
-- [ ] **Clase de Prueba Gratuita**: 1 práctica grupal gratis + conocer facilitadores + recorrido. — _Fase 4_
-- [ ] **Pase Ciudadano** — 4 prácticas/mes — **Gs 350.000**. Incluye: 4 prácticas grupales, acceso a todas las disciplinas grupales, reserva online, comunidad. — _Fase 4_
-- [ ] **Pase Comunidad** — 12 prácticas/mes — **Gs 400.000**. Incluye: 12 prácticas, todas las disciplinas, prioridad en lista de espera, beneficios en eventos seleccionados, comunidad. — _Fase 4_
-- [ ] **Membresía República** — ilimitada — **Gs 480.000**. Incluye: acceso ilimitado, prioridad de reserva, descuentos en talleres/asambleas, beneficios en individuales, encuentros exclusivos, acceso preferencial. — _Fase 4_
+> Los cuatro se siembran en `PlanSeeder` (precio + `rules`: créditos, vigencia, cancelación) y se
+> publican en la landing leyéndolos de `MembershipPlan`. Lo que **incluye** cada pase vive en
+> `rules.features` (JSON), no en la vista: agregar un pase o cambiar un precio/beneficio desde el
+> admin se refleja solo, sin tocar código.
+
+- [x] **Clase de Prueba Gratuita**: 1 práctica grupal gratis + conocer facilitadores + recorrido. — _Fase 4_ · _`free-trial`, precio 0, 1 crédito, 7 días._
+- [x] **Pase Ciudadano** — 4 prácticas/mes — **Gs 350.000**. Incluye: 4 prácticas grupales, acceso a todas las disciplinas grupales, reserva online, comunidad. — _Fase 4_ · _`citizen-pass`._
+- [x] **Pase Comunidad** — 12 prácticas/mes — **Gs 400.000**. Incluye: 12 prácticas, todas las disciplinas, prioridad en lista de espera, beneficios en eventos seleccionados, comunidad. — _Fase 4_ · _`community-pass`, marcado `featured` ("Más elegido")._
+- [x] **Membresía República** — ilimitada — **Gs 480.000**. Incluye: acceso ilimitado, prioridad de reserva, descuentos en talleres/asambleas, beneficios en individuales, encuentros exclusivos, acceso preferencial. — _Fase 4_ · _`republic-membership`._
 
 > Precios sembrados en `database/seeders/PlanSeeder.php` (moneda configurable; Gs = 0 decimales).
 
@@ -79,14 +84,14 @@ Especialidades (landing): Reiki, Sound Healing Individual, Medicina Ayurvédica,
 - [ ] Espacio para: Workshops, Charlas, Retiros, Círculos, Encuentros especiales. — _Fase 6_
 
 ### 1.8 FAQ
-- [ ] Bloques de preguntas frecuentes: Reservas, Cancelaciones, Membresías, Sesiones individuales, Primeras clases, Sobre yoga, Terapias de sonido, Terapias alternativas, Reservas/asistencia, Bienestar. (Contenido completo en el PDF pág. 7–9.) — _Fase 9_
+- [~] Bloques de preguntas frecuentes: Reservas, Cancelaciones, Membresías, Sesiones individuales, Primeras clases, Sobre yoga, Terapias de sonido, Terapias alternativas, Reservas/asistencia, Bienestar. (Contenido completo en el PDF pág. 7–9.) — _Fase 9_ · _Acordeón con 5 bloques (Reservas y asistencia, Cancelaciones, Membresías, Primeras clases, Sobre las prácticas) en `LandingContent::faqs()`. **Pendiente: repasar el copy contra el PDF pág. 7–9** — el texto actual es una redacción propia fiel a las reglas de negocio, no la transcripción literal._
 
 ### 1.9 Contacto
-- [ ] WhatsApp, Instagram, Ubicación/mapa, Formulario de contacto. — _Fase 9_
+- [x] WhatsApp, Instagram, Ubicación/mapa, Formulario de contacto. — _Fase 9_ · _Canales en `config/contact.php` (white-label; el canal sin configurar se oculta). El formulario no toca el backend: arma un `wa.me` con el mensaje prefilled. Mapa = iframe lazy opcional. **No se persiste el lead en el CRM** (decisión consciente)._
 
 ### 1.10 Dirección creativa
 - [ ] Evitar estética: fitness, clínica, corporativa, demasiado esotérica.
-- [ ] Transmitir: calidez, comunidad, belleza simple, naturaleza, presencia, bienestar integral, sofisticación tranquila, espiritualidad accesible. — _Fase 9_
+- [x] Transmitir: calidez, comunidad, belleza simple, naturaleza, presencia, bienestar integral, sofisticación tranquila, espiritualidad accesible. — _Fase 9_ · _Paleta de marca como tokens de Tailwind + General Sans; traducido de las maquetas. Faltan las fotografías reales (hoy hay placeholders)._
 
 ---
 

@@ -80,6 +80,38 @@ class MembershipPlan extends Model
         return $days === null ? null : (int) $days;
     }
 
+    /**
+     * Selling points shown on the public landing, straight from the rules bag
+     * so a new plan needs no code change (and no brand copy lives in a view).
+     *
+     * @return list<string>
+     */
+    public function features(): array
+    {
+        return array_values(array_filter(
+            (array) $this->rule('features', []),
+            static fn (mixed $line): bool => is_string($line) && filled($line),
+        ));
+    }
+
+    /** Whether the plan is highlighted as the recommended one. */
+    public function isFeatured(): bool
+    {
+        return (bool) $this->rule('featured', false);
+    }
+
+    /** Whether the plan is offered at no cost (drives the landing's CTA copy). */
+    public function isFree(): bool
+    {
+        return $this->price->minorAmount === 0;
+    }
+
+    /** Plans currently on offer, in catalog order. */
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('is_active', true)->orderBy('sort_order');
+    }
+
     /* -----------------------------------------------------------------
      | Activity coverage (which activities the plan includes)
      |

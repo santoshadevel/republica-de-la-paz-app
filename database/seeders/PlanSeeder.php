@@ -26,6 +26,11 @@ class PlanSeeder extends Seeder
                     'validity_days' => 7,
                     'cancellation' => ['group_hours' => 1],
                     'included_types' => ['group_class'],
+                    'features' => [
+                        '1 práctica grupal sin costo',
+                        'Conocé a los facilitadores',
+                        'Recorrido por el espacio',
+                    ],
                 ],
             ],
             [
@@ -40,6 +45,12 @@ class PlanSeeder extends Seeder
                     'validity_days' => 30,
                     'cancellation' => ['group_hours' => 1],
                     'included_types' => ['group_class'],
+                    'features' => [
+                        '4 prácticas grupales al mes',
+                        'Acceso a todas las disciplinas grupales',
+                        'Reserva online desde tu perfil',
+                        'Comunidad Santosha',
+                    ],
                 ],
             ],
             [
@@ -54,6 +65,14 @@ class PlanSeeder extends Seeder
                     'validity_days' => 30,
                     'cancellation' => ['group_hours' => 1],
                     'included_types' => ['group_class'],
+                    'featured' => true,
+                    'features' => [
+                        '12 prácticas grupales al mes',
+                        'Acceso a todas las disciplinas grupales',
+                        'Prioridad en lista de espera',
+                        'Beneficios en eventos seleccionados',
+                        'Comunidad Santosha',
+                    ],
                 ],
             ],
             [
@@ -68,6 +87,13 @@ class PlanSeeder extends Seeder
                     'validity_days' => 30,
                     'cancellation' => ['group_hours' => 1],
                     'included_types' => ['group_class'],
+                    'features' => [
+                        'Prácticas grupales ilimitadas',
+                        'Prioridad de reserva',
+                        'Descuentos en talleres y asambleas',
+                        'Beneficios en sesiones individuales',
+                        'Encuentros exclusivos para miembros',
+                    ],
                 ],
             ],
         ];
