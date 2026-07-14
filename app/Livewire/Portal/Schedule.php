@@ -65,6 +65,9 @@ class Schedule extends Component
                     'booked' => $booked,
                     'free' => $free,
                     'canBook' => $canBook,
+                    // Warns the student before they lose the credit; CancelBooking
+                    // re-decides at cancel time, this is only the heads-up.
+                    'refunds' => $session->refundsIfCancelledNow(),
                     'activity' => $session->activity?->name ?? 'Sesión',
                     'when' => $session->starts_at->isoFormat('ddd D/MM HH:mm').'–'.$session->ends_at?->format('H:i'),
                     'practitioner' => $session->practitioner?->fullName(),
@@ -119,6 +122,7 @@ class Schedule extends Component
         return view('livewire.portal.schedule', [
             'membership' => $membership,
             'canBook' => (bool) $membership?->hasAvailableCredit(),
+            'refundWindowHours' => (int) config('booking.group_cancellation_hours', 1),
         ]);
     }
 }

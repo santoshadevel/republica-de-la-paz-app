@@ -7,6 +7,9 @@
     @if (session('status'))
         <div class="rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{{ session('status') }}</div>
     @endif
+    @if (session('error'))
+        <div class="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{{ session('error') }}</div>
+    @endif
 
     <div class="grid gap-4 sm:grid-cols-2">
         @foreach ($plans as $plan)
@@ -39,19 +42,28 @@
             <h2 class="mb-3 text-sm font-medium uppercase tracking-wide text-stone-500">Mis solicitudes</h2>
             <ul class="divide-y divide-stone-100 rounded-xl border border-stone-200 bg-white">
                 @foreach ($orders as $order)
-                    <li class="flex items-center justify-between px-4 py-3 text-sm">
+                    <li class="flex items-center justify-between gap-3 px-4 py-3 text-sm">
                         <div>
                             <p class="font-medium text-stone-800">{{ $order->plan?->name ?? 'Pase' }}</p>
                             <p class="text-stone-400">{{ $order->created_at->format('d/m/Y') }} · {{ $order->price }}</p>
                         </div>
-                        @php
-                            $badge = match ($order->status) {
-                                \App\Enums\MembershipOrderStatus::Approved => 'bg-emerald-50 text-emerald-700',
-                                \App\Enums\MembershipOrderStatus::Rejected => 'bg-red-50 text-red-600',
-                                default => 'bg-amber-50 text-amber-700',
-                            };
-                        @endphp
-                        <span class="rounded-full px-3 py-1 text-xs font-medium {{ $badge }}">{{ $order->status->label() }}</span>
+                        <div class="flex items-center gap-3">
+                            @if ($order->isPending())
+                                <button wire:click="cancelOrder({{ $order->id }})" wire:loading.attr="disabled"
+                                        class="text-xs font-medium text-stone-400 underline hover:text-red-600">
+                                    Cancelar
+                                </button>
+                            @endif
+                            @php
+                                $badge = match ($order->status) {
+                                    \App\Enums\MembershipOrderStatus::Approved => 'bg-emerald-50 text-emerald-700',
+                                    \App\Enums\MembershipOrderStatus::Rejected => 'bg-red-50 text-red-600',
+                                    \App\Enums\MembershipOrderStatus::Cancelled => 'bg-stone-100 text-stone-500',
+                                    default => 'bg-amber-50 text-amber-700',
+                                };
+                            @endphp
+                            <span class="rounded-full px-3 py-1 text-xs font-medium {{ $badge }}">{{ $order->status->label() }}</span>
+                        </div>
                     </li>
                 @endforeach
             </ul>

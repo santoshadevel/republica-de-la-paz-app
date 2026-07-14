@@ -53,13 +53,26 @@
                     <span x-text="s.free"></span> lugares
                 </p>
 
+                <template x-if="s.booked && !s.refunds">
+                    <p class="mt-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                        Falta menos de {{ $refundWindowHours }} {{ $refundWindowHours === 1 ? 'hora' : 'horas' }}:
+                        si cancelás ahora, la práctica se consume y no se te reintegra.
+                    </p>
+                </template>
+
                 <div class="mt-5 flex justify-end gap-2">
                     <button @click="open = false" class="rounded-full px-4 py-2 text-sm text-stone-500 hover:text-stone-800">Cerrar</button>
 
-                    <template x-if="s.booked">
+                    <template x-if="s.booked && s.refunds">
                         <button @click="$wire.cancel(s.bookingId); open = false"
                                 class="rounded-full border border-stone-300 px-5 py-2 text-sm font-medium text-red-600 hover:border-red-300">
                             Cancelar reserva
+                        </button>
+                    </template>
+                    <template x-if="s.booked && !s.refunds">
+                        <button @click="$wire.cancel(s.bookingId); open = false"
+                                class="rounded-full bg-red-600 px-5 py-2 text-sm font-medium text-white hover:bg-red-700">
+                            Cancelar y perder la práctica
                         </button>
                     </template>
                     <template x-if="!s.booked && s.free > 0 && s.canBook">

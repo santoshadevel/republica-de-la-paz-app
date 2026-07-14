@@ -26,20 +26,11 @@ class CancelBooking
         return DB::transaction(function () use ($booking) {
             $booking->cancel();
 
-            if ($this->refundable($booking) && $booking->membership) {
+            if ($booking->session->refundsIfCancelledNow() && $booking->membership) {
                 $this->refund->execute($booking->membership, $booking);
             }
 
             return $booking;
         });
-    }
-
-    /** Whether the cancellation is early enough to refund the credit. */
-    private function refundable(Booking $booking): bool
-    {
-        $hours = (int) config('booking.group_cancellation_hours', 1);
-        $deadline = $booking->session->starts_at->copy()->subHours($hours);
-
-        return now()->lessThan($deadline);
     }
 }

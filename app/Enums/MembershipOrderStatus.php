@@ -11,6 +11,8 @@ enum MembershipOrderStatus: string implements HasColor, HasLabel
     case Pending = 'pending';
     case Approved = 'approved';
     case Rejected = 'rejected';
+    /** Withdrawn by the student from the portal before staff reviewed it. */
+    case Cancelled = 'cancelled';
 
     public function label(): string
     {
@@ -18,6 +20,7 @@ enum MembershipOrderStatus: string implements HasColor, HasLabel
             self::Pending => 'Pendiente',
             self::Approved => 'Aprobada',
             self::Rejected => 'Rechazada',
+            self::Cancelled => 'Cancelada',
         };
     }
 
@@ -32,6 +35,7 @@ enum MembershipOrderStatus: string implements HasColor, HasLabel
             self::Pending => 'warning',
             self::Approved => 'success',
             self::Rejected => 'danger',
+            self::Cancelled => 'gray',
         };
     }
 

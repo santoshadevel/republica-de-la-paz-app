@@ -32,7 +32,9 @@ class Register extends Component
         Auth::login($user);
         Session::regenerate();
 
-        return redirect()->route('portal.dashboard');
+        // The ficha is only attached once the address is verified, so the portal
+        // has nothing to show yet.
+        return redirect()->route('verification.notice');
     }
 
     public function render()
