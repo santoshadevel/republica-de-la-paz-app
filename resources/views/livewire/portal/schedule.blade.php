@@ -86,13 +86,34 @@
             [x-cloak] { display: none !important; }
             .portal-calendar .fc-event { cursor: pointer; }
             .portal-calendar .fc-toolbar-title { font-size: 1.05rem; }
+            @media (max-width: 767px) {
+                .portal-calendar .fc-header-toolbar.fc-toolbar {
+                    flex-direction: column;
+                    align-items: stretch;
+                    gap: 0.5rem;
+                    margin-bottom: 0.75rem;
+                }
+                .portal-calendar .fc-toolbar-title { font-size: 0.95rem; }
+                .portal-calendar .fc-footer-toolbar.fc-toolbar { margin-top: 0.75rem; }
+                .portal-calendar .fc-button { padding: 0.3rem 0.6rem; font-size: 0.8rem; }
+                .portal-calendar .fc-toolbar-chunk { display: flex; justify-content: center; }
+            }
         </style>
     @endassets
 
     @script
         <script>
+            const desktopHeader = {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,listWeek',
+            };
+            const mobileHeader = { left: 'prev,next', center: 'title', right: 'today' };
+            const mobileFooter = { center: 'dayGridMonth,listWeek' };
+            const mq = window.matchMedia('(max-width: 767px)');
+
             const calendar = new FullCalendar.Calendar($wire.$el.querySelector('#portal-cal'), {
-                initialView: 'timeGridWeek',
+                initialView: mq.matches ? 'listWeek' : 'timeGridWeek',
                 locale: 'es',
                 firstDay: 1,
                 nowIndicator: true,
@@ -101,11 +122,8 @@
                 slotMaxTime: '23:00:00',
                 height: 'auto',
                 expandRows: true,
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,listWeek',
-                },
+                headerToolbar: mq.matches ? mobileHeader : desktopHeader,
+                footerToolbar: mq.matches ? mobileFooter : false,
                 buttonText: { today: 'Hoy', month: 'Mes', week: 'Semana', list: 'Lista' },
                 events: (info, success, failure) => {
                     $wire.fetchEvents(info.startStr, info.endStr).then(success).catch(failure);
@@ -115,6 +133,22 @@
                     window.dispatchEvent(new CustomEvent('portal-session', { detail: info.event.extendedProps }));
                 },
             });
+
+            // Swap toolbar + view when crossing the mobile breakpoint.
+            let isMobile = mq.matches;
+            const applyResponsive = () => {
+                if (mq.matches === isMobile) return;
+                isMobile = mq.matches;
+                if (isMobile) {
+                    calendar.setOption('headerToolbar', mobileHeader);
+                    calendar.setOption('footerToolbar', mobileFooter);
+                    if (calendar.view.type === 'timeGridWeek') calendar.changeView('listWeek');
+                } else {
+                    calendar.setOption('headerToolbar', desktopHeader);
+                    calendar.setOption('footerToolbar', false);
+                }
+            };
+            mq.addEventListener('change', applyResponsive);
 
             calendar.render();
             $wire.on('calendar-refresh', () => calendar.refetchEvents());

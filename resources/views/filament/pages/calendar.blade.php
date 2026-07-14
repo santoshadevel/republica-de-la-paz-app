@@ -48,6 +48,18 @@
             .santosha-calendar a.fc-event:hover {
                 filter: brightness(1.08);
             }
+            @media (max-width: 767px) {
+                .santosha-calendar .fc-header-toolbar.fc-toolbar {
+                    flex-direction: column;
+                    align-items: stretch;
+                    gap: 0.5rem;
+                    margin-bottom: 0.75rem;
+                }
+                .santosha-calendar .fc-toolbar-title { font-size: 1rem; }
+                .santosha-calendar .fc-footer-toolbar.fc-toolbar { margin-top: 0.75rem; }
+                .santosha-calendar .fc-button { padding: 0.3rem 0.6rem; font-size: 0.8rem; }
+                .santosha-calendar .fc-toolbar-chunk { display: flex; justify-content: center; }
+            }
         </style>
     @endassets
 
@@ -55,8 +67,17 @@
         <script>
             const el = $wire.$el.querySelector('[x-ref="calendar"]');
 
+            const desktopHeader = {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
+            };
+            const mobileHeader = { left: 'prev,next', center: 'title', right: 'today' };
+            const mobileFooter = { center: 'dayGridMonth,listWeek' };
+            const mq = window.matchMedia('(max-width: 767px)');
+
             const calendar = new FullCalendar.Calendar(el, {
-                initialView: 'timeGridWeek',
+                initialView: mq.matches ? 'listWeek' : 'timeGridWeek',
                 locale: 'es',
                 firstDay: 1,
                 nowIndicator: true,
@@ -65,11 +86,8 @@
                 expandRows: true,
                 height: 'auto',
                 allDaySlot: false,
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
-                },
+                headerToolbar: mq.matches ? mobileHeader : desktopHeader,
+                footerToolbar: mq.matches ? mobileFooter : false,
                 buttonText: {
                     today: 'Hoy',
                     month: 'Mes',
@@ -99,6 +117,24 @@
                     }
                 },
             });
+
+            // Swap toolbar + view when crossing the mobile breakpoint.
+            let isMobile = mq.matches;
+            const applyResponsive = () => {
+                if (mq.matches === isMobile) return;
+                isMobile = mq.matches;
+                if (isMobile) {
+                    calendar.setOption('headerToolbar', mobileHeader);
+                    calendar.setOption('footerToolbar', mobileFooter);
+                    if (calendar.view.type === 'timeGridWeek' || calendar.view.type === 'timeGridDay') {
+                        calendar.changeView('listWeek');
+                    }
+                } else {
+                    calendar.setOption('headerToolbar', desktopHeader);
+                    calendar.setOption('footerToolbar', false);
+                }
+            };
+            mq.addEventListener('change', applyResponsive);
 
             calendar.render();
 
