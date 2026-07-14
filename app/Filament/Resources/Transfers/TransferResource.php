@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Transfers;
 
+use App\Filament\Concerns\AdminOnly;
 use App\Filament\Resources\Transfers\Pages\ManageTransfers;
 use App\Models\Transfer;
 use App\Support\Money;
@@ -18,6 +19,8 @@ use Filament\Tables\Table;
 
 class TransferResource extends Resource
 {
+    use AdminOnly;
+
     protected static ?string $model = Transfer::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedArrowsRightLeft;

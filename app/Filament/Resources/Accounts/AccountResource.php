@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Accounts;
 
 use App\Enums\AccountType;
+use App\Filament\Concerns\AdminOnly;
 use App\Filament\Resources\Accounts\Pages\ManageAccounts;
 use App\Models\Account;
 use App\Support\Money;
@@ -23,6 +24,8 @@ use Filament\Tables\Table;
 
 class AccountResource extends Resource
 {
+    use AdminOnly;
+
     protected static ?string $model = Account::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedWallet;

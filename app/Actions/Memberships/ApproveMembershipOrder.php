@@ -26,7 +26,15 @@ class ApproveMembershipOrder
         }
 
         return DB::transaction(function () use ($order, $by, $paymentMethod) {
-            $membership = $this->sellMembership->execute($order->student, $order->plan, null, $paymentMethod);
+            // Honour the price snapshotted when the order was placed, not the live
+            // catalog price (which may have changed after the student requested it).
+            $membership = $this->sellMembership->execute(
+                $order->student,
+                $order->plan,
+                null,
+                $paymentMethod,
+                ['price_paid' => $order->price?->minorAmount ?? 0],
+            );
             $order->markApproved($by, $membership);
 
             return $membership;

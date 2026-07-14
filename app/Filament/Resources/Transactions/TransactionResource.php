@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Transactions;
 
+use App\Filament\Concerns\AdminOnly;
 use App\Filament\Resources\Transactions\Pages\CreateTransaction;
 use App\Filament\Resources\Transactions\Pages\EditTransaction;
 use App\Filament\Resources\Transactions\Pages\ListTransactions;
@@ -18,6 +19,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class TransactionResource extends Resource
 {
+    use AdminOnly;
+
     protected static ?string $model = Transaction::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBanknotes;

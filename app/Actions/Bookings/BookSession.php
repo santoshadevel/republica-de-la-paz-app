@@ -9,6 +9,7 @@ use App\Exceptions\BookingException;
 use App\Models\Booking;
 use App\Models\ScheduledSession;
 use App\Models\Student;
+use App\Models\StudentMembership;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -46,7 +47,8 @@ class BookSession
 
         return DB::transaction(function () use ($student, $session, $membership) {
             // Re-check capacity under a row lock so two concurrent bookings can't
-            // both slip past a last seat.
+            // both slip past a last seat. Locking the session also serialises two
+            // concurrent bookings of the *same* session by the same student.
             $locked = ScheduledSession::query()
                 ->whereKey($session->getKey())
                 ->lockForUpdate()
@@ -56,13 +58,26 @@ class BookSession
                 throw BookingException::full();
             }
 
-            if (! $membership->hasAvailableCredit()) {
+            // Lock the membership row too, so two concurrent bookings on *different*
+            // sessions can't both read the same remaining balance and overspend it.
+            $lockedMembership = StudentMembership::query()
+                ->whereKey($membership->getKey())
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            // Re-check the duplicate inside the locked transaction; the pre-check
+            // above is racy on its own.
+            if ($this->studentAlreadyBooked($student, $locked)) {
+                throw BookingException::alreadyBooked();
+            }
+
+            if (! $lockedMembership->hasAvailableCredit()) {
                 throw BookingException::noCredit();
             }
 
-            $booking = Booking::place($locked, $student, $membership);
+            $booking = Booking::place($locked, $student, $lockedMembership);
 
-            $this->consume->execute($membership, $booking);
+            $this->consume->execute($lockedMembership, $booking);
 
             return $booking;
         });

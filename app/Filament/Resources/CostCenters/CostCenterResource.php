@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\CostCenters;
 
+use App\Filament\Concerns\AdminOnly;
 use App\Filament\Resources\CostCenters\Pages\ManageCostCenters;
 use App\Models\CostCenter;
 use BackedEnum;
@@ -18,6 +19,8 @@ use Filament\Tables\Table;
 
 class CostCenterResource extends Resource
 {
+    use AdminOnly;
+
     protected static ?string $model = CostCenter::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingOffice2;

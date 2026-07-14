@@ -62,8 +62,9 @@ class SellMembership
             }
 
             // Accounting: record the income for this sale (only when we know how
-            // it was paid). Category resolved to the "Membresías" income tree.
-            if ($paymentMethod !== null && ($plan->price?->minorAmount ?? 0) > 0) {
+            // it was paid). Uses the actual price charged (may be a snapshot override,
+            // not the live catalog price). Category resolved to the "Membresías" tree.
+            if ($paymentMethod !== null && $membership->price_paid->minorAmount > 0) {
                 app(RecordTransaction::class)->execute(
                     type: TransactionType::Income,
                     amount: Money::ofMinor($membership->price_paid->minorAmount, $membership->currency_code),

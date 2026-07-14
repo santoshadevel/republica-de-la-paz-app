@@ -68,4 +68,10 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->hasRole(Role::Student->value);
     }
+
+    /** Whether this account has the admin role (full system access). */
+    public function isAdmin(): bool
+    {
+        return $this->hasRole(Role::Admin->value);
+    }
 }

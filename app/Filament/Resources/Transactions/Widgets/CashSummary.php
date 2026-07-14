@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Transactions\Widgets;
 
+use App\Filament\Concerns\AdminOnlyWidget;
 use App\Models\Transaction;
 use App\Support\Money;
 use Filament\Widgets\StatsOverviewWidget;
@@ -10,6 +11,8 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 /** Cash summary for the current month: income, expense and balance. */
 class CashSummary extends StatsOverviewWidget
 {
+    use AdminOnlyWidget;
+
     protected function getStats(): array
     {
         $start = now()->startOfMonth()->toDateString();

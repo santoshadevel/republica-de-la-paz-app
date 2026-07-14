@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Concerns\AdminOnly;
 use App\Models\Practitioner;
 use App\Services\Reporting\HonorariumService;
 use BackedEnum;
@@ -16,6 +17,7 @@ use Illuminate\Support\Carbon;
 /** Monthly honorarium liquidation per practitioner. */
 class HonorariumLiquidation extends Page implements HasTable
 {
+    use AdminOnly;
     use InteractsWithTable;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalculator;

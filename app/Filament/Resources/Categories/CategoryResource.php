@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Categories;
 
 use App\Enums\TransactionType;
+use App\Filament\Concerns\AdminOnly;
 use App\Filament\Resources\Categories\Pages\ManageCategories;
 use App\Models\Category;
 use BackedEnum;
@@ -22,6 +23,8 @@ use Filament\Tables\Table;
 
 class CategoryResource extends Resource
 {
+    use AdminOnly;
+
     protected static ?string $model = Category::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;

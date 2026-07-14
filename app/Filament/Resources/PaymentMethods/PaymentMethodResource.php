@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\PaymentMethods;
 
+use App\Filament\Concerns\AdminOnly;
 use App\Filament\Resources\PaymentMethods\Pages\ManagePaymentMethods;
 use App\Models\PaymentMethod;
 use BackedEnum;
@@ -19,6 +20,8 @@ use Filament\Tables\Table;
 
 class PaymentMethodResource extends Resource
 {
+    use AdminOnly;
+
     protected static ?string $model = PaymentMethod::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCreditCard;

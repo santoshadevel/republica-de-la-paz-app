@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Filament\Concerns\AdminOnlyWidget;
 use App\Services\Reporting\ReportService;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
@@ -9,6 +10,8 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 /** "Hoy": operational summary of the day. */
 class TodayOverview extends StatsOverviewWidget
 {
+    use AdminOnlyWidget;
+
     protected static ?int $sort = 1;
 
     protected ?string $heading = 'Hoy';

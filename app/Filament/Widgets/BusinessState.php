@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Filament\Concerns\AdminOnlyWidget;
 use App\Services\Reporting\ReportService;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
@@ -9,6 +10,8 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 /** "Este mes": income, expense, result and margin. */
 class BusinessState extends StatsOverviewWidget
 {
+    use AdminOnlyWidget;
+
     protected static ?int $sort = 2;
 
     protected ?string $heading = 'Estado del negocio (mes)';
