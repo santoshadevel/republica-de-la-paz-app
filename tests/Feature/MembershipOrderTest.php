@@ -78,6 +78,20 @@ class MembershipOrderTest extends TestCase
         $this->assertSame(1, MembershipOrder::where('student_id', $student->id)->count());
     }
 
+    public function test_the_catalog_marks_the_passes_already_awaiting_review(): void
+    {
+        [$user] = $this->studentUser();
+
+        // Nothing requested yet: every pass is offered.
+        Livewire::actingAs($user)->test(Plans::class)
+            ->assertSee('Solicitar este pase')
+            ->assertDontSee('Ya tenés una solicitud pendiente para este pase');
+
+        Livewire::actingAs($user)->test(Plans::class)
+            ->call('requestPlan', $this->plan()->id)
+            ->assertSee('Ya tenés una solicitud pendiente para este pase');
+    }
+
     public function test_approving_an_order_sells_the_membership(): void
     {
         [, $student] = $this->studentUser();

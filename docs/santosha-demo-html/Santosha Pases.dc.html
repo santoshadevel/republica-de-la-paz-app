@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://api.fontshare.com">
+<link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:'General Sans',system-ui,sans-serif;color:#43301f;background:#f4ecdf;-webkit-font-smoothing:antialiased}
+a{color:#bf693e;text-decoration:none}a:hover{color:#8e4629}
+::selection{background:#ebbc88;color:#43301f}
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:#f4ecdf">
+
+<!-- HEADER (ciudadano logueado) -->
+<header style="position:sticky;top:0;z-index:60;background:rgba(244,236,223,.9);backdrop-filter:blur(14px);border-bottom:1px solid rgba(142,70,41,.12)">
+  <div style="max-width:1200px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px">
+    <a href="#" style="flex:none;display:flex;align-items:center"><img src="assets/logo-color.png" alt="Santosha" style="height:42px;width:auto;display:block"></a>
+    <div style="{{ desktopNavStyle }}">
+      <nav style="display:flex;gap:22px;white-space:nowrap">
+        <a href="#" style="font-size:15px;font-weight:500;color:#5c4432">Mi espacio</a>
+        <a href="#" style="font-size:15px;font-weight:500;color:#5c4432">Reservar</a>
+        <a href="#" style="font-size:15px;font-weight:600;color:#bf693e">Pases</a>
+      </nav>
+      <div style="display:flex;align-items:center;gap:14px;padding-left:18px;border-left:1px solid rgba(142,70,41,.16)">
+        <span style="font-size:14px;color:#6b5240">Hola, <strong style="color:#43301f;font-weight:600">Ana</strong></span>
+        <a href="#" style="font-size:15px;font-weight:600;color:#8e4629">Salir</a>
+      </div>
+    </div>
+    <button onClick="{{ toggleNav }}" aria-label="Menú" style="{{ hamburgerStyle }}">
+      <span style="{{ bar1 }}"></span><span style="{{ bar2 }}"></span><span style="{{ bar3 }}"></span>
+    </button>
+  </div>
+  <sc-if value="{{ showMobilePanel }}" hint-placeholder-val="{{ false }}">
+    <div style="border-top:1px solid rgba(142,70,41,.12);background:#f4ecdf;padding:10px 20px 20px;display:flex;flex-direction:column;gap:2px">
+      <a onClick="{{ closeNav }}" href="#" style="font-size:17px;font-weight:500;color:#43301f;padding:13px 4px;border-bottom:1px solid rgba(142,70,41,.08)">Mi espacio</a>
+      <a onClick="{{ closeNav }}" href="#" style="font-size:17px;font-weight:500;color:#43301f;padding:13px 4px;border-bottom:1px solid rgba(142,70,41,.08)">Reservar</a>
+      <a onClick="{{ closeNav }}" href="#" style="font-size:17px;font-weight:600;color:#bf693e;padding:13px 4px;border-bottom:1px solid rgba(142,70,41,.08)">Pases</a>
+      <a onClick="{{ closeNav }}" href="#" style="font-size:17px;font-weight:500;color:#8e4629;padding:13px 4px">Salir</a>
+    </div>
+  </sc-if>
+</header>
+
+<section style="max-width:1200px;margin:0 auto;padding:clamp(28px,5vw,48px) 20px 72px">
+  <!-- INTRO -->
+  <div style="max-width:640px;margin-bottom:14px">
+    <span style="display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#bf693e;margin-bottom:14px"><span style="width:24px;height:1.5px;background:#bf693e;display:inline-block"></span>Pases de la República</span>
+    <h1 style="font-size:clamp(28px,4vw,44px);font-weight:600;line-height:1.05;margin:0 0 14px;color:#43301f">Elegí tu pase y solicitalo</h1>
+  </div>
+  <!-- how it works note -->
+  <div style="display:flex;gap:14px;align-items:flex-start;background:#fbf6ec;border:1px solid rgba(142,70,41,.14);border-radius:16px;padding:16px 20px;margin-bottom:34px;max-width:820px">
+    <span style="flex:none;width:26px;height:26px;border-radius:50%;background:rgba(99,107,47,.15);color:#636b2f;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700">i</span>
+    <p style="font-size:14.5px;line-height:1.55;color:#5c4432;margin:0"><strong style="color:#43301f">No se paga online.</strong> Solicitás el pase acá y el equipo de Santosha lo revisa, lo aprueba y lo activa manualmente. Coordinamos el pago con vos al aprobarlo.</p>
+  </div>
+
+  <!-- CATALOG -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:18px;margin-bottom:56px">
+    <sc-for list="{{ passes }}" as="p" hint-placeholder-count="4">
+      <div style="{{ p.cardStyle }}">
+        <sc-if value="{{ p.featured }}" hint-placeholder-val="{{ false }}">
+          <span style="position:absolute;top:16px;right:16px;background:#636b2f;color:#f4efe1;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:5px 12px;border-radius:999px;white-space:nowrap">Más elegido</span>
+        </sc-if>
+        <h3 style="{{ p.titleStyle }}">{{ p.name }}</h3>
+        <div style="{{ p.freqStyle }}">{{ p.freq }}</div>
+        <p style="{{ p.descStyle }}">{{ p.desc }}</p>
+        <div style="{{ p.metaStyle }}">
+          <div style="display:flex;align-items:center;gap:8px"><span style="{{ p.dotStyle }}"></span>{{ p.practices }}</div>
+          <div style="display:flex;align-items:center;gap:8px"><span style="{{ p.dotStyle }}"></span>Vigencia {{ p.days }} días</div>
+        </div>
+        <div style="{{ p.priceRowStyle }}"><span style="{{ p.priceStyle }}">{{ p.price }}</span></div>
+        <button onClick="{{ p.request }}" style="{{ p.btnStyle }}">{{ p.btnLabel }}</button>
+        <sc-if value="{{ p.pendingHere }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:12.5px;text-align:center;color:#8e6a2f;margin-top:10px;font-weight:500">Ya tenés una solicitud pendiente para este pase</div>
+        </sc-if>
+      </div>
+    </sc-for>
+  </div>
+
+  <!-- MIS SOLICITUDES -->
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+    <h2 style="font-size:clamp(22px,3vw,30px);font-weight:600;margin:0;color:#43301f">Mis solicitudes</h2>
+    <span style="font-size:14px;color:#9a7b5f">({{ reqCount }})</span>
+  </div>
+
+  <div style="background:#fbf6ec;border:1px solid rgba(142,70,41,.12);border-radius:20px;overflow:hidden">
+    <!-- table head (desktop) -->
+    <div style="{{ tableHeadStyle }}">
+      <div>Pase</div><div>Fecha</div><div>Precio</div><div>Estado</div><div style="text-align:right">Acción</div>
+    </div>
+    <sc-for list="{{ requests }}" as="r" hint-placeholder-count="4">
+      <div style="{{ r.rowStyle }}">
+        <div style="{{ r.cellPase }}"><span style="font-weight:600;color:#43301f">{{ r.name }}</span><span style="font-size:13px;color:#9a7b5f">{{ r.practices }}</span></div>
+        <div style="{{ r.cellField }}"><span style="{{ r.mLabel }}">Fecha · </span>{{ r.date }}</div>
+        <div style="{{ r.cellField }}"><span style="{{ r.mLabel }}">Precio · </span>{{ r.price }}</div>
+        <div style="{{ r.cellField }}"><span style="{{ r.badgeStyle }}">{{ r.status }}</span></div>
+        <div style="{{ r.cellAction }}">
+          <sc-if value="{{ r.cancellable }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ r.cancel }}" style="background:transparent;border:1px solid rgba(191,105,62,.4);color:#bf693e;font:inherit;font-size:13.5px;font-weight:600;padding:8px 16px;border-radius:999px;cursor:pointer">Cancelar</button>
+          </sc-if>
+          <sc-if value="{{ r.notCancellable }}" hint-placeholder-val="{{ true }}">
+            <span style="font-size:13px;color:#c2ab90">—</span>
+          </sc-if>
+        </div>
+      </div>
+    </sc-for>
+    <sc-if value="{{ noRequests }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:44px 24px;text-align:center;color:#9a7b5f;font-size:15px">Todavía no enviaste ninguna solicitud.</div>
+    </sc-if>
+  </div>
+</section>
+
+<!-- TOAST -->
+<sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;left:0;right:0;bottom:24px;z-index:120;display:flex;justify-content:center;padding:0 20px;pointer-events:none">
+    <div style="{{ toastStyle }}">
+      <span style="{{ toastIconStyle }}">{{ toastIcon }}</span>
+      <span style="font-size:15px;font-weight:500;line-height:1.4">{{ toastMsg }}</span>
+      <button onClick="{{ dismissToast }}" style="pointer-events:auto;background:transparent;border:0;color:inherit;opacity:.7;font-size:18px;cursor:pointer;margin-left:4px">×</button>
+    </div>
+  </div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1200,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  state = {
+    navOpen:false, isMobile:false, toast:null,
+    // pending set by pass id; preset one pending, plus history
+    pending:{p2:true},
+    requests:[
+      {id:'r1', passId:'p2', name:'Pase Comunidad', practices:'12 prácticas', date:'10 jul 2026', price:'Gs 400.000', status:'Pendiente'},
+      {id:'r2', passId:'p1', name:'Pase Ciudadano', practices:'8 prácticas', date:'2 jun 2026', price:'Gs 350.000', status:'Aprobada'},
+      {id:'r3', passId:'p4', name:'Membresía República', practices:'Ilimitadas', date:'20 may 2026', price:'Gs 480.000', status:'Rechazada'},
+      {id:'r4', passId:'p1', name:'Pase Ciudadano', practices:'8 prácticas', date:'3 abr 2026', price:'Gs 350.000', status:'Cancelada'},
+    ],
+  };
+
+  passes = [
+    {id:'p1', name:'Pase Ciudadano', freq:'Para empezar', desc:'Ideal para incorporar la práctica de a poco, con flexibilidad.', practices:'8 prácticas', days:30, price:'Gs 350.000', featured:false},
+    {id:'p2', name:'Pase Comunidad', freq:'El equilibrado', desc:'Para sostener una práctica constante a lo largo del mes.', practices:'12 prácticas', days:30, price:'Gs 400.000', featured:true},
+    {id:'p3', name:'Pase Semanal', freq:'Intensivo', desc:'Una semana de práctica libre para sumergirte en la comunidad.', practices:'Prácticas ilimitadas', days:7, price:'Gs 180.000', featured:false},
+    {id:'p4', name:'Membresía República', freq:'El completo', desc:'Acceso ilimitado a todas las prácticas grupales del mes.', practices:'Prácticas ilimitadas', days:30, price:'Gs 480.000', featured:false},
+  ];
+
+  componentDidMount(){
+    this.mq = window.matchMedia('(max-width: 760px)');
+    this._on = ()=> this.setState({ isMobile:this.mq.matches, navOpen:false });
+    this.setState({ isMobile:this.mq.matches });
+    this.mq.addEventListener('change', this._on);
+  }
+  componentWillUnmount(){ this.mq && this.mq.removeEventListener('change', this._on); }
+
+  statusColor(s){
+    switch(s){
+      case 'Aprobada': return 'background:rgba(99,107,47,.16);color:#4e5426';
+      case 'Pendiente': return 'background:rgba(235,188,136,.35);color:#8e6a2f';
+      case 'Rechazada': return 'background:rgba(191,105,62,.16);color:#a8552f';
+      default: return 'background:rgba(154,123,95,.16);color:#7a6248';
+    }
+  }
+
+  requestPass(p){
+    if(this.state.pending[p.id]){
+      this.setState({toast:{type:'err', msg:'Ya tenés una solicitud pendiente para ese pase.'}});
+      return;
+    }
+    const pending={...this.state.pending}; pending[p.id]=true;
+    const req={id:'r'+Date.now(), passId:p.id, name:p.name, practices:(p.practices.includes('limitad')?'Ilimitadas':p.practices.replace(' prácticas','')+' prácticas'), date:'14 jul 2026', price:p.price, status:'Pendiente'};
+    this.setState({pending, requests:[req, ...this.state.requests], toast:{type:'ok', msg:'Solicitud enviada. La revisamos y activamos tu pase a la brevedad.'}});
+  }
+  cancelReq(r){
+    const reqs=this.state.requests.map(x=> x.id===r.id ? {...x, status:'Cancelada'} : x);
+    const pending={...this.state.pending}; delete pending[r.passId];
+    this.setState({requests:reqs, pending, toast:{type:'ok', msg:'Solicitud cancelada.'}});
+  }
+
+  renderVals(){
+    const st=this.state; const isMobile=st.isMobile;
+    const passes = this.passes.map(p=>{
+      const dark=p.featured;
+      const pendingHere=!!st.pending[p.id];
+      return {
+        ...p,
+        featured:p.featured, pendingHere,
+        cardStyle:'position:relative;display:flex;flex-direction:column;border-radius:20px;padding:'+(p.featured?'44px 26px 26px':'28px 26px')+';'+(dark?'background:#8e4629;color:#f4ecdf':'background:#fbf6ec;border:1px solid rgba(142,70,41,.14)'),
+        titleStyle:'font-size:21px;font-weight:600;margin:0 0 4px;color:'+(dark?'#f4ecdf':'#43301f'),
+        freqStyle:'font-size:13.5px;font-weight:600;color:'+(dark?'#ebbc88':'#bf693e')+';margin-bottom:12px',
+        descStyle:'font-size:14px;line-height:1.5;margin:0 0 16px;color:'+(dark?'#e7cfb6':'#6b5240'),
+        metaStyle:'display:flex;flex-direction:column;gap:8px;font-size:14px;font-weight:500;margin-bottom:18px;color:'+(dark?'#f0e2d0':'#5c4432'),
+        dotStyle:'flex:none;width:7px;height:7px;border-radius:50%;background:'+(dark?'#ebbc88':'#636b2f'),
+        priceRowStyle:'display:flex;align-items:baseline;gap:6px;padding-top:16px;margin-bottom:18px;border-top:1px solid '+(dark?'rgba(235,188,136,.25)':'rgba(142,70,41,.12)'),
+        priceStyle:'font-size:27px;font-weight:600;color:'+(dark?'#f4ecdf':'#43301f'),
+        request:()=>this.requestPass(p),
+        btnLabel: pendingHere ? 'Solicitud pendiente' : 'Solicitar',
+        btnStyle:'margin-top:auto;text-align:center;font:inherit;font-weight:600;font-size:15px;padding:14px;border:0;border-radius:999px;cursor:pointer;'+(pendingHere?'background:'+(dark?'rgba(244,236,223,.18)':'rgba(142,70,41,.1)')+';color:'+(dark?'#e7cfb6':'#9a7b5f')+';cursor:default':(dark?'background:#ebbc88;color:#5a3a22':'background:#bf693e;color:#fff')),
+      };
+    });
+
+    const headGrid='grid-template-columns:1.4fr 1fr 1fr 1fr .8fr;gap:16px;align-items:center';
+    const requests = st.requests.map(r=>{
+      const cancellable = r.status==='Pendiente';
+      return {
+        ...r,
+        cancellable, notCancellable:!cancellable,
+        cancel:()=>this.cancelReq(r),
+        badgeStyle:'display:inline-block;font-size:12.5px;font-weight:600;padding:5px 13px;border-radius:999px;'+this.statusColor(r.status),
+        rowStyle: isMobile
+          ? 'display:flex;flex-direction:column;gap:8px;padding:18px 20px;border-top:1px solid rgba(142,70,41,.1)'
+          : 'display:grid;'+headGrid+';padding:16px 24px;border-top:1px solid rgba(142,70,41,.1)',
+        cellPase:'display:flex;flex-direction:column;gap:2px',
+        cellField: isMobile?'font-size:14px;color:#5c4432':'font-size:14.5px;color:#5c4432',
+        cellAction: isMobile?'margin-top:4px':'text-align:right',
+        mLabel: isMobile?'font-size:12.5px;color:#9a7b5f;font-weight:500':'display:none',
+      };
+    });
+
+    const toast=st.toast;
+    return {
+      passes,
+      requests, reqCount:st.requests.length, noRequests:st.requests.length===0,
+      tableHeadStyle: isMobile ? 'display:none' : 'display:grid;'+headGrid+';padding:14px 24px;background:rgba(142,70,41,.05);font-size:12.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9a7b5f',
+      // nav
+      showMobilePanel: isMobile && st.navOpen,
+      desktopNavStyle:'display:'+(isMobile?'none':'flex')+';align-items:center;gap:20px',
+      hamburgerStyle:'display:'+(isMobile?'flex':'none')+';flex-direction:column;justify-content:center;gap:5px;width:44px;height:44px;border:0;background:transparent;cursor:pointer;padding:10px',
+      bar1:'display:block;width:22px;height:2px;border-radius:2px;background:#8e4629;transition:.25s'+((isMobile&&st.navOpen)?';transform:translateY(7px) rotate(45deg)':''),
+      bar2:'display:block;width:22px;height:2px;border-radius:2px;background:#8e4629;transition:.25s'+((isMobile&&st.navOpen)?';opacity:0':''),
+      bar3:'display:block;width:22px;height:2px;border-radius:2px;background:#8e4629;transition:.25s'+((isMobile&&st.navOpen)?';transform:translateY(-7px) rotate(-45deg)':''),
+      toggleNav:()=>this.setState({navOpen:!st.navOpen}), closeNav:()=>this.setState({navOpen:false}),
+      // toast
+      hasToast:!!toast, toastMsg:toast?toast.msg:'', toastIcon:toast?(toast.type==='ok'?'✓':'!'):'',
+      toastStyle:'pointer-events:auto;display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:14px;max-width:460px;box-shadow:0 20px 50px -18px rgba(67,48,31,.6);'+(toast&&toast.type==='ok'?'background:#43301f;color:#f4ecdf':'background:#bf693e;color:#fff'),
+      toastIconStyle:'flex:none;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;'+(toast&&toast.type==='ok'?'background:#636b2f;color:#fff':'background:rgba(255,255,255,.25);color:#fff'),
+      dismissToast:()=>this.setState({toast:null}),
+    };
+  }
+}
+</script>
+</body>
+</html>

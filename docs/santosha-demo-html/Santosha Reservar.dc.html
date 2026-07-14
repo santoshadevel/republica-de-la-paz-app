@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://api.fontshare.com">
+<link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:'General Sans',system-ui,sans-serif;color:#43301f;background:#f4ecdf;-webkit-font-smoothing:antialiased}
+a{color:#bf693e;text-decoration:none}a:hover{color:#8e4629}
+::selection{background:#ebbc88;color:#43301f}
+[data-hs]::-webkit-scrollbar{height:8px}
+[data-hs]::-webkit-scrollbar-thumb{background:rgba(142,70,41,.2);border-radius:8px}
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:#f4ecdf">
+
+<!-- HEADER (ciudadano logueado) -->
+<header style="position:sticky;top:0;z-index:60;background:rgba(244,236,223,.9);backdrop-filter:blur(14px);border-bottom:1px solid rgba(142,70,41,.12)">
+  <div style="max-width:1280px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px">
+    <a href="#" style="flex:none;display:flex;align-items:center"><img src="assets/logo-color.png" alt="Santosha" style="height:42px;width:auto;display:block"></a>
+    <div style="{{ desktopNavStyle }}">
+      <nav style="display:flex;gap:22px;white-space:nowrap">
+        <a href="#" style="font-size:15px;font-weight:500;color:#5c4432">Mi espacio</a>
+        <a href="#" style="font-size:15px;font-weight:600;color:#bf693e">Reservar</a>
+        <a href="#" style="font-size:15px;font-weight:500;color:#5c4432">Pases</a>
+      </nav>
+      <div style="display:flex;align-items:center;gap:14px;padding-left:18px;border-left:1px solid rgba(142,70,41,.16)">
+        <span style="font-size:14px;color:#6b5240">Hola, <strong style="color:#43301f;font-weight:600">Ana</strong></span>
+        <a href="#" style="font-size:15px;font-weight:600;color:#8e4629">Salir</a>
+      </div>
+    </div>
+    <button onClick="{{ toggleNav }}" aria-label="Menú" style="{{ hamburgerStyle }}">
+      <span style="{{ bar1 }}"></span><span style="{{ bar2 }}"></span><span style="{{ bar3 }}"></span>
+    </button>
+  </div>
+  <sc-if value="{{ showMobilePanel }}" hint-placeholder-val="{{ false }}">
+    <div style="border-top:1px solid rgba(142,70,41,.12);background:#f4ecdf;padding:10px 20px 20px;display:flex;flex-direction:column;gap:2px">
+      <a onClick="{{ closeNav }}" href="#" style="font-size:17px;font-weight:500;color:#43301f;padding:13px 4px;border-bottom:1px solid rgba(142,70,41,.08)">Mi espacio</a>
+      <a onClick="{{ closeNav }}" href="#" style="font-size:17px;font-weight:600;color:#bf693e;padding:13px 4px;border-bottom:1px solid rgba(142,70,41,.08)">Reservar</a>
+      <a onClick="{{ closeNav }}" href="#" style="font-size:17px;font-weight:500;color:#43301f;padding:13px 4px;border-bottom:1px solid rgba(142,70,41,.08)">Pases</a>
+      <a onClick="{{ closeNav }}" href="#" style="font-size:17px;font-weight:500;color:#8e4629;padding:13px 4px">Salir</a>
+    </div>
+  </sc-if>
+</header>
+
+<!-- STATE SWITCHER -->
+<div style="max-width:1280px;margin:0 auto;padding:20px 20px 0;display:flex;flex-wrap:wrap;align-items:center;gap:12px">
+  <span style="font-size:12.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#9a7b5f">Saldo del pase</span>
+  <div style="display:flex;flex-wrap:wrap;gap:8px">
+    <sc-for list="{{ saldoStates }}" as="s" hint-placeholder-count="3">
+      <button onClick="{{ s.select }}" style="{{ s.style }}">{{ s.label }}</button>
+    </sc-for>
+  </div>
+</div>
+
+<section style="max-width:1280px;margin:0 auto;padding:18px 20px 72px">
+  <!-- SALDO HEADER -->
+  <sc-if value="{{ hasPase }}" hint-placeholder-val="{{ true }}">
+    <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;background:#8e4629;color:#f4ecdf;border-radius:20px;padding:22px 26px;margin-bottom:22px">
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:28px">
+        <div>
+          <div style="font-size:12.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#ebbc88;margin-bottom:4px">Tu pase</div>
+          <div style="font-size:20px;font-weight:600">{{ paseName }}</div>
+        </div>
+        <div style="width:1px;height:38px;background:rgba(235,188,136,.3)"></div>
+        <div>
+          <div style="font-size:12.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#ebbc88;margin-bottom:4px">Prácticas disponibles</div>
+          <div style="font-size:20px;font-weight:600">{{ paseCount }}</div>
+        </div>
+        <div style="width:1px;height:38px;background:rgba(235,188,136,.3)"></div>
+        <div>
+          <div style="font-size:12.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#ebbc88;margin-bottom:4px">Vence</div>
+          <div style="font-size:20px;font-weight:600">{{ paseVenc }}</div>
+        </div>
+      </div>
+      <a href="#" style="flex:none;background:#ebbc88;color:#5a3a22;font-size:14px;font-weight:600;padding:12px 22px;border-radius:999px">Ver mis pases</a>
+    </div>
+  </sc-if>
+  <sc-if value="{{ noPase }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:18px;background:#fbf6ec;border:1px dashed rgba(142,70,41,.35);border-radius:20px;padding:26px 28px;margin-bottom:22px">
+      <div style="display:flex;align-items:center;gap:18px">
+        <div style="flex:none;width:52px;height:52px;border-radius:50%;background:rgba(191,105,62,.12);color:#bf693e;display:flex;align-items:center;justify-content:center;font-size:24px">◔</div>
+        <div>
+          <div style="font-size:19px;font-weight:600;color:#43301f;margin-bottom:3px">Todavía no tenés un pase activo</div>
+          <div style="font-size:15px;color:#6b5240">Solicitá un pase para empezar a reservar tus prácticas.</div>
+        </div>
+      </div>
+      <a href="#" style="flex:none;background:#bf693e;color:#fff;font-size:15px;font-weight:600;padding:14px 26px;border-radius:999px">Ver pases</a>
+    </div>
+  </sc-if>
+
+  <!-- WEEK NAV + LEGEND -->
+  <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px">
+    <div style="display:flex;align-items:center;gap:14px">
+      <h1 style="font-size:clamp(22px,3vw,30px);font-weight:600;margin:0;color:#43301f">Semana del 6 al 11 de julio</h1>
+    </div>
+    <div data-hs style="display:flex;flex-wrap:wrap;gap:14px">
+      <span style="display:inline-flex;align-items:center;gap:7px;font-size:13px;color:#5c4432"><span style="width:14px;height:14px;border-radius:4px;border:1.5px solid #bf693e;background:rgba(191,105,62,.1)"></span>Con lugar</span>
+      <span style="display:inline-flex;align-items:center;gap:7px;font-size:13px;color:#5c4432"><span style="width:14px;height:14px;border-radius:4px;background:#636b2f;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:10px">✓</span>Reservada</span>
+      <span style="display:inline-flex;align-items:center;gap:7px;font-size:13px;color:#5c4432"><span style="width:14px;height:14px;border-radius:4px;border:1.5px dashed #9a7b5f"></span>Sin cupo</span>
+      <span style="display:inline-flex;align-items:center;gap:7px;font-size:13px;color:#5c4432"><span style="width:14px;height:14px;border-radius:4px;border:1.5px dotted #9a7b5f;display:inline-flex;align-items:center;justify-content:center"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#9a7b5f" stroke-width="2.5"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>Sin saldo</span>
+    </div>
+  </div>
+
+  <!-- CALENDAR: flex row (desktop) / column list (mobile) -->
+  <div data-hs style="{{ weekWrapStyle }}">
+    <div style="{{ weekStyle }}">
+      <sc-for list="{{ week }}" as="day" hint-placeholder-count="6">
+        <div style="{{ day.colStyle }}">
+          <div style="{{ day.headStyle }}">
+            <span style="font-size:15px;font-weight:600;color:#43301f">{{ day.name }}</span>
+            <span style="font-size:13px;color:#9a7b5f">{{ day.date }}</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <sc-for list="{{ day.sessions }}" as="s" hint-placeholder-count="3">
+              <button onClick="{{ s.open }}" style="{{ s.cardStyle }}">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+                  <span style="font-size:13.5px;font-weight:600;color:#bf693e">{{ s.timeRange }}</span>
+                  <span style="{{ s.statusBadgeStyle }}">{{ s.statusLabel }}</span>
+                </div>
+                <div style="font-size:16px;font-weight:600;color:#43301f;line-height:1.2;text-align:left">{{ s.activity }}</div>
+                <div style="font-size:13px;color:#6b5240;text-align:left">{{ s.pro }} · {{ s.sala }}</div>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</section>
+
+<!-- ===== MODAL ===== -->
+<sc-if value="{{ hasModal }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeModal }}" style="position:fixed;inset:0;z-index:100;background:rgba(67,48,31,.55);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px">
+    <div onClick="{{ stop }}" style="background:#fbf6ec;border-radius:22px;max-width:440px;width:100%;padding:30px 28px;position:relative;box-shadow:0 40px 90px -30px rgba(67,48,31,.7)">
+      <button onClick="{{ closeModal }}" style="position:absolute;top:16px;right:16px;width:34px;height:34px;border-radius:50%;border:0;background:#efe3d1;color:#8e4629;font-size:18px;cursor:pointer">×</button>
+
+      <!-- DETAIL VIEW -->
+      <sc-if value="{{ modalDetail }}" hint-placeholder-val="{{ true }}">
+        <div>
+          <span style="{{ m_statusBadgeStyle }}">{{ m_statusLabel }}</span>
+          <h3 style="font-size:25px;font-weight:600;margin:14px 0 4px;color:#43301f">{{ m_activity }}</h3>
+          <div style="font-size:14.5px;color:#bf693e;font-weight:600;margin-bottom:20px">{{ m_day }} · {{ m_timeRange }}</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px 20px;border-top:1px solid rgba(142,70,41,.14);padding-top:18px;margin-bottom:20px">
+            <div><div style="font-size:12.5px;color:#9a7b5f">Profesional</div><div style="font-size:15px;font-weight:600;color:#43301f">{{ m_pro }}</div></div>
+            <div><div style="font-size:12.5px;color:#9a7b5f">Sala</div><div style="font-size:15px;font-weight:600;color:#43301f">{{ m_sala }}</div></div>
+            <div><div style="font-size:12.5px;color:#9a7b5f">Duración</div><div style="font-size:15px;font-weight:600;color:#43301f">{{ m_dur }}</div></div>
+            <div><div style="font-size:12.5px;color:#9a7b5f">Cupos libres</div><div style="{{ m_cuposStyle }}">{{ m_cupos }}</div></div>
+          </div>
+          <sc-if value="{{ m_showNote }}" hint-placeholder-val="{{ false }}">
+            <div style="{{ m_noteStyle }}">{{ m_note }}</div>
+          </sc-if>
+          <button onClick="{{ m_action }}" style="{{ m_btnStyle }}">{{ m_btnLabel }}</button>
+        </div>
+      </sc-if>
+
+      <!-- CANCEL CONFIRM VIEW -->
+      <sc-if value="{{ modalCancel }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <h3 style="font-size:23px;font-weight:600;margin:4px 0 10px;color:#43301f">¿Cancelar tu reserva?</h3>
+          <p style="font-size:15px;line-height:1.55;color:#6b5240;margin:0 0 16px">{{ m_activity }} · {{ m_day }} · {{ m_timeRange }}</p>
+          <div style="display:flex;gap:12px;align-items:flex-start;background:rgba(99,107,47,.1);border:1px solid rgba(99,107,47,.28);border-radius:14px;padding:14px 16px;margin-bottom:22px">
+            <span style="flex:none;width:22px;height:22px;border-radius:50%;background:#636b2f;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700">i</span>
+            <div style="font-size:14px;line-height:1.5;color:#4e5426">Cancelando con <strong>más de 1 hora</strong> de anticipación, la práctica vuelve a tu saldo. Con menos de 1 hora, se consume.</div>
+          </div>
+          <div style="display:flex;gap:12px">
+            <button onClick="{{ backToDetail }}" style="flex:1;background:transparent;border:1.5px solid rgba(142,70,41,.3);color:#8e4629;font:inherit;font-weight:600;font-size:15px;padding:14px;border-radius:999px;cursor:pointer">Volver</button>
+            <button onClick="{{ confirmCancel }}" style="flex:1;background:#bf693e;color:#fff;font:inherit;font-weight:600;font-size:15px;padding:14px;border:0;border-radius:999px;cursor:pointer">Sí, cancelar</button>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ===== TOAST ===== -->
+<sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;left:0;right:0;bottom:24px;z-index:120;display:flex;justify-content:center;padding:0 20px;pointer-events:none">
+    <div style="{{ toastStyle }}">
+      <span style="{{ toastIconStyle }}">{{ toastIcon }}</span>
+      <span style="font-size:15px;font-weight:500">{{ toastMsg }}</span>
+      <button onClick="{{ dismissToast }}" style="pointer-events:auto;background:transparent;border:0;color:inherit;opacity:.7;font-size:18px;cursor:pointer;margin-left:4px">×</button>
+    </div>
+  </div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  state = { saldo:'con', reserved:{s7:true}, modal:null, modalView:'detail', toast:null, navOpen:false, isMobile:false };
+
+  saldoStates = [
+    {id:'con', label:'Con pase (8 prácticas)'},
+    {id:'ilimitado', label:'Pase ilimitado'},
+    {id:'sin', label:'Sin pase activo'},
+  ];
+
+  // day: 0..5 (Lun..Sáb)
+  sessions = [
+    {id:'s1',day:0,date:'Lun 6',start:'07:30',end:'08:30',activity:'Hatha Yoga',pro:'Eloisa Carmona',sala:'Sala Tierra',cap:14,spots:6},
+    {id:'s2',day:0,date:'Lun 6',start:'18:30',end:'19:30',activity:'Yin Yoga',pro:'Neli Duarte',sala:'Sala Tierra',cap:14,spots:9},
+    {id:'s3',day:0,date:'Lun 6',start:'20:00',end:'21:00',activity:'Meditación',pro:'Eloisa Carmona',sala:'Sala Cielo',cap:16,spots:0},
+    {id:'s4',day:1,date:'Mar 7',start:'08:00',end:'09:15',activity:'Vinyasa Flow',pro:'Magu Venialgo',sala:'Sala Cielo',cap:12,spots:5},
+    {id:'s5',day:1,date:'Mar 7',start:'19:00',end:'20:15',activity:'Sound Healing',pro:'Neli Duarte',sala:'Sala Cielo',cap:18,spots:2},
+    {id:'s6',day:2,date:'Mié 8',start:'07:30',end:'08:30',activity:'Hatha Yoga',pro:'Eloisa Carmona',sala:'Sala Tierra',cap:14,spots:7},
+    {id:'s7',day:2,date:'Mié 8',start:'18:30',end:'19:45',activity:'Vinyasa Flow',pro:'Magu Venialgo',sala:'Sala Tierra',cap:12,spots:4},
+    {id:'s8',day:2,date:'Mié 8',start:'20:00',end:'21:00',activity:'Yin Yoga',pro:'Neli Duarte',sala:'Sala Cielo',cap:14,spots:9},
+    {id:'s9',day:3,date:'Jue 9',start:'08:00',end:'09:00',activity:'Kundalini Yoga',pro:'Eloisa Carmona',sala:'Sala Cielo',cap:14,spots:6},
+    {id:'s10',day:3,date:'Jue 9',start:'19:00',end:'20:00',activity:'Yoga Restaurativo',pro:'Neli Duarte',sala:'Sala Cielo',cap:14,spots:0},
+    {id:'s11',day:4,date:'Vie 10',start:'07:30',end:'08:30',activity:'Hatha Yoga',pro:'Eloisa Carmona',sala:'Sala Tierra',cap:14,spots:8},
+    {id:'s12',day:4,date:'Vie 10',start:'18:00',end:'19:15',activity:'Sound Healing',pro:'Neli Duarte',sala:'Sala Tierra',cap:18,spots:1},
+    {id:'s13',day:5,date:'Sáb 11',start:'09:00',end:'10:15',activity:'Vinyasa Flow',pro:'Magu Venialgo',sala:'Sala Cielo',cap:12,spots:7},
+    {id:'s14',day:5,date:'Sáb 11',start:'10:45',end:'11:45',activity:'Yin Yoga',pro:'Neli Duarte',sala:'Sala Tierra',cap:14,spots:10},
+    {id:'s15',day:5,date:'Sáb 11',start:'12:00',end:'13:00',activity:'Círculo de Meditación',pro:'Eloisa Carmona',sala:'Sala Cielo',cap:16,spots:9},
+  ];
+  dayNames = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+
+  componentDidMount(){
+    this.mq = window.matchMedia('(max-width: 860px)');
+    this._on = ()=> this.setState({ isMobile:this.mq.matches, navOpen:false });
+    this.setState({ isMobile:this.mq.matches });
+    this.mq.addEventListener('change', this._on);
+  }
+  componentWillUnmount(){ this.mq && this.mq.removeEventListener('change', this._on); }
+
+  hasSaldo(){ const s=this.state.saldo; return s==='ilimitado' || (s==='con' && this.remaining()>0); }
+  remaining(){ return this.state.saldo==='con' ? (8 - Object.keys(this.state.reserved).length) : (this.state.saldo==='ilimitado' ? Infinity : 0); }
+
+  statusOf(sess){
+    if(this.state.reserved[sess.id]) return 'reservada';
+    if(sess.spots<=0) return 'completo';
+    if(!this.hasSaldo()) return 'sinsaldo';
+    return 'disponible';
+  }
+  lockSvg(color){ return '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="'+color+'" stroke-width="2.4" style="display:inline-block;vertical-align:-1px"><rect x="4" y="10" width="16" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>'; }
+
+  statusMeta(status, spots){
+    switch(status){
+      case 'reservada': return {label:'✓ Reservada', badge:'background:#636b2f;color:#fff', border:'1.5px solid #636b2f', bg:'rgba(99,107,47,.08)'};
+      case 'completo': return {label:'Sin cupo', badge:'background:transparent;color:#9a7b5f;border:1px solid rgba(154,123,95,.5)', border:'1.5px dashed rgba(154,123,95,.6)', bg:'rgba(154,123,95,.06)', dim:true};
+      case 'sinsaldo': return {label:'Sin saldo', badge:'background:transparent;color:#9a7b5f;border:1px dotted rgba(154,123,95,.7)', border:'1.5px dotted rgba(154,123,95,.6)', bg:'#fbf6ec', dim:true};
+      default: return {label:spots+' libres', badge:'background:rgba(191,105,62,.12);color:#a8552f', border:'1.5px solid rgba(191,105,62,.4)', bg:'#fbf6ec'};
+    }
+  }
+
+  fmtBadge(meta, small){ return 'flex:none;font-size:'+(small?'11.5':'12')+'px;font-weight:600;padding:4px 10px;border-radius:999px;white-space:nowrap;'+meta.badge; }
+
+  open(id){ this.setState({modal:id, modalView:'detail'}); }
+  close(){ this.setState({modal:null}); }
+
+  doReserve(id){
+    const r={...this.state.reserved}; r[id]=true;
+    this.setState({reserved:r, modal:null, toast:{type:'ok',msg:'Reserva confirmada.'}});
+  }
+  doCancel(id){
+    const r={...this.state.reserved}; delete r[id];
+    this.setState({reserved:r, modal:null, modalView:'detail', toast:{type:'ok',msg:'Reserva cancelada.'}});
+  }
+  errNoSaldo(){ this.setState({modal:null, toast:{type:'err',msg:'No tenés prácticas disponibles.'}}); }
+
+  renderVals(){
+    const st = this.state;
+    const isMobile = st.isMobile;
+    const remaining = this.remaining();
+    const hasPase = st.saldo!=='sin';
+    const paseCount = st.saldo==='ilimitado' ? 'Ilimitadas' : (remaining+' de 8');
+
+    const week = this.dayNames.map((name,di)=>{
+      const sessions = this.sessions.filter(s=>s.day===di).map(s=>{
+        const status = this.statusOf(s);
+        const meta = this.statusMeta(status, s.spots);
+        return {
+          ...s,
+          timeRange: s.start+'–'+s.end,
+          statusLabel: meta.label,
+          statusBadgeStyle: this.fmtBadge(meta, true),
+          open:()=>this.open(s.id),
+          cardStyle:'cursor:pointer;text-align:left;font:inherit;display:flex;flex-direction:column;gap:6px;padding:13px 14px;border-radius:14px;border:'+meta.border+';background:'+meta.bg+';'+(meta.dim?'opacity:.72;':'')+'transition:transform .12s,box-shadow .12s',
+        };
+      });
+      return {
+        name, date: (this.sessions.find(s=>s.day===di)||{}).date || '',
+        sessions,
+        colStyle: isMobile
+          ? 'flex:none;width:100%'
+          : 'flex:1;min-width:190px;display:flex;flex-direction:column;gap:10px',
+        headStyle:'display:flex;'+(isMobile?'align-items:center;gap:10px;':'flex-direction:column;')+'padding:'+(isMobile?'6px 2px 10px':'0 2px 12px')+';margin-bottom:'+(isMobile?'2px':'2px')+';border-bottom:'+(isMobile?'2px solid rgba(142,70,41,.16)':'0'),
+      };
+    });
+
+    // modal
+    const sess = this.sessions.find(s=>s.id===st.modal);
+    let modalVals = {};
+    if(sess){
+      const status = this.statusOf(sess);
+      const meta = this.statusMeta(status, sess.spots);
+      const dur = (()=>{ const [h1,m1]=sess.start.split(':').map(Number); const [h2,m2]=sess.end.split(':').map(Number); return ((h2*60+m2)-(h1*60+m1))+' min'; })();
+      let btnLabel, btnStyle, action, showNote=false, note='', noteStyle='';
+      const primary='background:#bf693e;color:#fff;';
+      const btnBase='width:100%;text-align:center;font:inherit;font-weight:600;font-size:16px;padding:15px;border:0;border-radius:999px;cursor:pointer;';
+      const disabled='background:rgba(142,70,41,.12);color:#9a7b5f;cursor:not-allowed;';
+      if(status==='reservada'){
+        btnLabel='Cancelar reserva'; btnStyle=btnBase+'background:transparent;border:1.5px solid #bf693e;color:#bf693e;';
+        action=()=>this.setState({modalView:'cancel'});
+      } else if(status==='completo'){
+        btnLabel='Sin cupo disponible'; btnStyle=btnBase+disabled; action=()=>{};
+        showNote=true; note='Esta práctica ya no tiene lugares. Podés elegir otro horario.'; noteStyle='background:rgba(154,123,95,.1);border:1px solid rgba(154,123,95,.3);border-radius:12px;padding:12px 14px;font-size:14px;line-height:1.5;color:#7a6248;margin-bottom:18px';
+      } else if(status==='sinsaldo'){
+        btnLabel='Ver pases'; btnStyle=btnBase+primary; action=()=>this.errNoSaldo();
+        showNote=true; note='No tenés prácticas disponibles en tu pase para reservar.'; noteStyle='background:rgba(191,105,62,.1);border:1px solid rgba(191,105,62,.3);border-radius:12px;padding:12px 14px;font-size:14px;line-height:1.5;color:#8e4629;margin-bottom:18px';
+      } else {
+        btnLabel='Reservar'; btnStyle=btnBase+primary; action=()=>this.doReserve(sess.id);
+      }
+      modalVals = {
+        m_activity:sess.activity, m_day:this.dayNames[sess.day], m_timeRange:sess.start+'–'+sess.end,
+        m_pro:sess.pro, m_sala:sess.sala, m_dur:dur,
+        m_cupos: sess.spots<=0 ? 'Completo' : (sess.spots+' de '+sess.cap),
+        m_cuposStyle:'font-size:15px;font-weight:600;color:'+(sess.spots<=0?'#9a7b5f':'#636b2f'),
+        m_statusLabel:meta.label, m_statusBadgeStyle:'display:inline-block;'+this.fmtBadge(meta,false),
+        m_btnLabel:btnLabel, m_btnStyle:btnStyle, m_action:action,
+        m_showNote:showNote, m_note:note, m_noteStyle:noteStyle,
+      };
+    }
+
+    const toast = st.toast;
+    return {
+      saldoStates: this.saldoStates.map(x=>({
+        label:x.label, select:()=>this.setState({saldo:x.id, modal:null, toast:null}),
+        style:'cursor:pointer;font:inherit;font-size:13.5px;font-weight:600;padding:9px 16px;border-radius:999px;border:1px solid '+(st.saldo===x.id?'#bf693e':'rgba(142,70,41,.22)')+';background:'+(st.saldo===x.id?'#bf693e':'transparent')+';color:'+(st.saldo===x.id?'#fff':'#8e4629'),
+      })),
+      hasPase, noPase: !hasPase,
+      paseName: st.saldo==='ilimitado' ? 'Membresía República' : 'Pase Ciudadano',
+      paseCount, paseVenc:'12 ago 2026',
+      week,
+      weekWrapStyle: isMobile ? 'overflow:visible' : 'overflow-x:auto;padding-bottom:8px',
+      weekStyle: isMobile ? 'display:flex;flex-direction:column;gap:22px' : 'display:flex;gap:14px;min-width:900px',
+      // nav
+      showMobilePanel: isMobile && st.navOpen,
+      desktopNavStyle:'display:'+(isMobile?'none':'flex')+';align-items:center;gap:20px',
+      hamburgerStyle:'display:'+(isMobile?'flex':'none')+';flex-direction:column;justify-content:center;gap:5px;width:44px;height:44px;border:0;background:transparent;cursor:pointer;padding:10px',
+      bar1:'display:block;width:22px;height:2px;border-radius:2px;background:#8e4629;transition:.25s'+((isMobile&&st.navOpen)?';transform:translateY(7px) rotate(45deg)':''),
+      bar2:'display:block;width:22px;height:2px;border-radius:2px;background:#8e4629;transition:.25s'+((isMobile&&st.navOpen)?';opacity:0':''),
+      bar3:'display:block;width:22px;height:2px;border-radius:2px;background:#8e4629;transition:.25s'+((isMobile&&st.navOpen)?';transform:translateY(-7px) rotate(-45deg)':''),
+      toggleNav:()=>this.setState({navOpen:!st.navOpen}), closeNav:()=>this.setState({navOpen:false}),
+      // modal
+      hasModal: !!sess,
+      modalDetail: !!sess && st.modalView==='detail',
+      modalCancel: !!sess && st.modalView==='cancel',
+      closeModal:()=>this.close(), stop:(e)=>e.stopPropagation(),
+      backToDetail:()=>this.setState({modalView:'detail'}),
+      confirmCancel:()=> sess && this.doCancel(sess.id),
+      ...modalVals,
+      // toast
+      hasToast: !!toast,
+      toastMsg: toast? toast.msg : '',
+      toastIcon: toast? (toast.type==='ok'?'✓':'!') : '',
+      toastStyle:'pointer-events:auto;display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:14px;box-shadow:0 20px 50px -18px rgba(67,48,31,.6);'+(toast&&toast.type==='ok'?'background:#43301f;color:#f4ecdf':'background:#bf693e;color:#fff'),
+      toastIconStyle:'flex:none;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;'+(toast&&toast.type==='ok'?'background:#636b2f;color:#fff':'background:rgba(255,255,255,.25);color:#fff'),
+      dismissToast:()=>this.setState({toast:null}),
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -60,11 +60,16 @@ class Plans extends Component
     {
         $student = Auth::user()->student;
 
+        $orders = $student !== null
+            ? MembershipOrder::with('plan')->where('student_id', $student->id)->latest()->get()
+            : collect();
+
         return view('livewire.portal.plans', [
-            'plans' => MembershipPlan::query()->where('is_active', true)->orderBy('sort_order')->get(),
-            'orders' => $student !== null
-                ? MembershipOrder::with('plan')->where('student_id', $student->id)->latest()->get()
-                : collect(),
+            'plans' => MembershipPlan::active()->get(),
+            'orders' => $orders,
+            // Lets the catalog mark the passes already awaiting review, instead
+            // of only telling the student after they hit "solicitar" again.
+            'pendingPlanIds' => $orders->filter->isPending()->pluck('membership_plan_id'),
         ]);
     }
 }
