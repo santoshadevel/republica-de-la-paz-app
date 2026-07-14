@@ -3,10 +3,15 @@
 namespace Tests\Feature;
 
 use App\Enums\ActivityType;
+use App\Enums\Role;
+use App\Filament\Resources\MembershipPlans\Pages\EditMembershipPlan;
 use App\Models\Activity;
 use App\Models\MembershipPlan;
 use App\Models\Practitioner;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
+use Spatie\Permission\Models\Role as SpatieRole;
 use Tests\TestCase;
 
 class LandingTest extends TestCase
@@ -142,6 +147,57 @@ class LandingTest extends TestCase
         $response->assertSee('Reiki');
         $response->assertSee('Sesión individual de energía.');
         $response->assertDontSee('Vinyasa Grupal');
+    }
+
+    public function test_plan_features_are_editable_from_the_admin_and_reach_the_landing(): void
+    {
+        $admin = User::factory()->create();
+        SpatieRole::findOrCreate(Role::Admin->value);
+        $admin->assignRole(Role::Admin->value);
+
+        $plan = MembershipPlan::create([
+            'name' => 'Pase editable',
+            'slug' => 'editable-pass',
+            'price' => 200000,
+            'sort_order' => 1,
+            'is_active' => true,
+            'rules' => [
+                'credits' => 4,
+                'validity_days' => 30,
+                'features' => ['Beneficio viejo'],
+            ],
+        ]);
+
+        // A simple() Repeater holds each row as ['feature' => '...'] internally
+        // and only flattens to a list of strings on dehydration — hence the
+        // shape here, and why the assertions below check the persisted value.
+        Livewire::actingAs($admin)
+            ->test(EditMembershipPlan::class, ['record' => $plan->getKey()])
+            ->assertOk()
+            ->fillForm([
+                'rules.featured' => true,
+                'rules.features' => [
+                    ['feature' => 'Beneficio nuevo'],
+                    ['feature' => 'Otro beneficio'],
+                ],
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $plan->refresh();
+
+        $this->assertSame(['Beneficio nuevo', 'Otro beneficio'], $plan->features());
+        $this->assertTrue($plan->isFeatured());
+        // Editing the landing copy must not clobber the behaviour rules.
+        $this->assertSame(4, $plan->credits());
+        $this->assertSame(30, $plan->validityDays());
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Beneficio nuevo')
+            ->assertSee('Otro beneficio')
+            ->assertSee('Más elegido')
+            ->assertDontSee('Beneficio viejo');
     }
 
     public function test_the_whatsapp_link_uses_the_configured_number(): void
