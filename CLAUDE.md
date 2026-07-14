@@ -48,6 +48,10 @@ perderse**: al construir cada fase, verificar y marcar sus ítems ahí.
 - **Identificación única de alumno:** por **`email`** (unique en DB). El número de
   identidad (`identity_number`, genérico) es secundario y opcional.
 - **Referencias de diseño:** asanagroove.com (landing), theyogaclubbarcelona.com (calendario semanal).
+- **Maquetas de la landing:** [docs/santosha-demo-html/](docs/santosha-demo-html/) — HTML
+  estático hecho con Claude Design. Es la **referencia visual** de la Fase 9 (identidad,
+  paleta, secciones, copy), no código a copiar tal cual: se traduce a Blade + Tailwind.
+  Ver su [CLAUDE.md](docs/santosha-demo-html/CLAUDE.md) para paleta, tipografía y voz.
 
 ## Arquitectura white-label / API (IMPORTANTE)
 
@@ -92,7 +96,7 @@ cubrirá ~99% de un rol de agendamiento/coordinación. Reglas transversales:
 | Base de datos   | MySQL 8.4                                     |
 | Runtime         | PHP 8.4 (php-fpm) + Nginx                     |
 | Infraestructura | Docker / Docker Compose                      |
-| Landing pública | Frontend separado del panel (Claude Design)  |
+| Landing pública | Blade + Tailwind + Alpine, separado del panel — maquetas en [docs/santosha-demo-html/](docs/santosha-demo-html/) |
 
 ## Entorno de desarrollo
 
