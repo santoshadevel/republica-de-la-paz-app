@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * A dated occurrence of a group activity. Holds the facilitator, room, time and
@@ -86,6 +87,18 @@ class ScheduledSession extends Model
     public function isFull(): bool
     {
         return $this->seatsAvailable() <= 0;
+    }
+
+    /** Cancelling before this moment refunds the credit; later it is consumed. */
+    public function refundDeadline(): Carbon
+    {
+        return $this->starts_at->copy()->subHours((int) config('booking.group_cancellation_hours', 1));
+    }
+
+    /** Whether cancelling right now would still refund the credit. */
+    public function refundsIfCancelledNow(): bool
+    {
+        return now()->lessThan($this->refundDeadline());
     }
 
     /** Persist a new dated occurrence of a group activity. */

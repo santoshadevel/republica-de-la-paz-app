@@ -106,4 +106,47 @@ class PortalScheduleTest extends TestCase
 
         $this->assertSame(0, $session->fresh()->seatsTaken());
     }
+
+    public function test_cancelling_early_from_the_portal_refunds_the_credit(): void
+    {
+        [$user, $student] = $this->studentUser();
+        $session = $this->futureSession(); // tomorrow, well outside the window
+        $before = $student->currentMembership()->creditsRemaining();
+        $booking = app(BookSession::class)->execute($student, $session);
+
+        Livewire::actingAs($user)->test(Schedule::class)->call('cancel', $booking->id);
+
+        $this->assertSame($before, $student->fresh()->currentMembership()->creditsRemaining());
+    }
+
+    public function test_cancelling_inside_the_window_from_the_portal_consumes_the_credit(): void
+    {
+        [$user, $student] = $this->studentUser();
+        $session = $this->futureSession();
+        $before = $student->currentMembership()->creditsRemaining();
+        $booking = app(BookSession::class)->execute($student, $session);
+
+        // Slide to 30 minutes before it starts: inside the 1 h refund window.
+        $this->travelTo($session->starts_at->copy()->subMinutes(30));
+
+        Livewire::actingAs($user)->test(Schedule::class)->call('cancel', $booking->id);
+
+        $this->assertSame($before - 1, $student->fresh()->currentMembership()->creditsRemaining());
+    }
+
+    public function test_fetch_events_flags_whether_cancelling_still_refunds(): void
+    {
+        [$user, $student] = $this->studentUser();
+        $session = $this->futureSession();
+        app(BookSession::class)->execute($student, $session);
+
+        $fetch = fn () => Livewire::actingAs($user)->test(Schedule::class)
+            ->instance()
+            ->fetchEvents(now()->subDay()->toIso8601String(), now()->addDays(3)->toIso8601String());
+
+        $this->assertTrue($fetch()[0]['extendedProps']['refunds']);
+
+        $this->travelTo($session->starts_at->copy()->subMinutes(30));
+        $this->assertFalse($fetch()[0]['extendedProps']['refunds']);
+    }
 }

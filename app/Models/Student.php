@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use RuntimeException;
 
 /**
  * A client/member of the center. The record is unique by email; identity_number
@@ -56,18 +57,30 @@ class Student extends Model
     /**
      * Link a portal login to the matching ficha (by email), creating it if the
      * student had never been registered by staff. Returns the ficha.
+     *
+     * Callers must have proven the address belongs to the user (see
+     * App\Actions\Auth\VerifyStudentEmail) — the ficha may hold another person's
+     * credits and history.
      */
     public static function registerFrom(User $user, string $fullName): self
     {
         [$first, $last] = self::splitName($fullName);
 
-        $student = static::firstOrNew(['email' => $user->email]);
+        // Trashed fichas count: the email is unique across them too, so ignoring
+        // them would collide on insert instead of giving the student their record.
+        $student = static::withTrashed()->firstOrNew(['email' => $user->email]);
+
+        if ($student->user_id !== null && $student->user_id !== $user->getKey()) {
+            throw new RuntimeException("La ficha de {$user->email} ya pertenece a otra cuenta.");
+        }
+
         $student->fill([
             'user_id' => $user->getKey(),
             'first_name' => $student->first_name ?: $first,
             'last_name' => $student->last_name ?: $last,
             'is_active' => true,
         ]);
+        $student->deleted_at = null;
         $student->save();
 
         return $student;

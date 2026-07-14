@@ -124,4 +124,48 @@ class MembershipOrderTest extends TestCase
         $this->expectException(\RuntimeException::class);
         app(ApproveMembershipOrder::class)->execute($order->fresh(), $this->admin());
     }
+
+    public function test_student_can_withdraw_their_own_pending_request(): void
+    {
+        [$user, $student] = $this->studentUser();
+        $order = MembershipOrder::place($student, $this->plan());
+
+        Livewire::actingAs($user)->test(Plans::class)
+            ->call('cancelOrder', $order->id);
+
+        $this->assertSame(MembershipOrderStatus::Cancelled, $order->fresh()->status);
+
+        // ...and the plan is requestable again afterwards.
+        Livewire::actingAs($user)->test(Plans::class)
+            ->call('requestPlan', $this->plan()->id);
+
+        $this->assertSame(2, MembershipOrder::where('student_id', $student->id)->count());
+    }
+
+    public function test_an_already_approved_request_cannot_be_withdrawn(): void
+    {
+        [$user, $student] = $this->studentUser();
+        $order = MembershipOrder::place($student, $this->plan());
+        app(ApproveMembershipOrder::class)->execute($order, $this->admin());
+
+        Livewire::actingAs($user)->test(Plans::class)
+            ->call('cancelOrder', $order->id);
+
+        $this->assertSame(MembershipOrderStatus::Approved, $order->fresh()->status);
+        $this->assertNotNull($student->fresh()->currentMembership());
+    }
+
+    public function test_a_student_cannot_withdraw_someone_elses_request(): void
+    {
+        [$user] = $this->studentUser();
+
+        $otherUser = User::registerStudent('Ana P', 'ana@example.com', 'password123');
+        $other = Student::registerFrom($otherUser, 'Ana P');
+        $order = MembershipOrder::place($other, $this->plan());
+
+        Livewire::actingAs($user)->test(Plans::class)
+            ->call('cancelOrder', $order->id);
+
+        $this->assertSame(MembershipOrderStatus::Pending, $order->fresh()->status);
+    }
 }

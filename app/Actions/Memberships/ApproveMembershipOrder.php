@@ -21,11 +21,13 @@ class ApproveMembershipOrder
 
     public function execute(MembershipOrder $order, User $by, ?PaymentMethod $paymentMethod = null): StudentMembership
     {
-        if (! $order->isPending()) {
-            throw new RuntimeException('La solicitud ya fue revisada.');
-        }
-
         return DB::transaction(function () use ($order, $by, $paymentMethod) {
+            // Re-read under lock: the student may be withdrawing this very order
+            // from the portal. Checking outside the transaction would let both win.
+            if (! MembershipOrder::lockedPending($order->getKey())) {
+                throw new RuntimeException('La solicitud ya fue revisada.');
+            }
+
             // Honour the price snapshotted when the order was placed, not the live
             // catalog price (which may have changed after the student requested it).
             $membership = $this->sellMembership->execute(

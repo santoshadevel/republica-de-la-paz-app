@@ -136,6 +136,19 @@ no arman ni ejecutan el query de escritura por su cuenta.
 - Esto mantiene la lógica de persistencia en un solo lugar, testeable y reutilizable por
   Filament y por la futura API/MCP sin duplicar reglas.
 
+### Regla #2 — A `main` solo se entra por Pull Request (INNEGOCIABLE)
+
+**Nunca commitear ni mergear directo a `main`.** Todo cambio, sin importar el tamaño,
+viaja en una rama y se integra **vía Pull Request**.
+
+- Ni un hotfix, ni un typo, ni un cambio "de una línea" van directo a `main`.
+- Nada de `git merge` local hacia `main` ni `git push origin main`. El merge lo hace el
+  PR una vez aprobado.
+- Si por error se empezó a trabajar sobre `main`: crear la rama **antes** de commitear
+  (`git switch -c feat/...`) y abrir el PR desde ahí.
+- El PR es el punto donde corre la revisión (`/revision`) y quedan registrados el qué y
+  el porqué del cambio.
+
 - Seguir las **convenciones oficiales de Laravel** y formatear con **Pint**
   (`docker compose exec app ./vendor/bin/pint`).
 - Modelos en singular (`Student`, `Membership`), tablas en plural snake_case

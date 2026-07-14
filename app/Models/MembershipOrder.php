@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\DB;
+use RuntimeException;
 
 /**
  * A student's request to buy a pass. Created as pending from the portal; staff
@@ -92,6 +94,35 @@ class MembershipOrder extends Model
         ]);
 
         return $this;
+    }
+
+    /** Withdraw this request; only the student who placed it may do so. */
+    public function markCancelledBy(Student $student): self
+    {
+        if ($this->student_id !== $student->getKey()) {
+            throw new RuntimeException('La solicitud pertenece a otro alumno.');
+        }
+
+        return DB::transaction(function () {
+            // Staff may be approving this very row: re-read it under lock so we
+            // never cancel an order that just became a membership.
+            if (! static::lockedPending($this->getKey())) {
+                throw new RuntimeException('La solicitud ya fue revisada.');
+            }
+
+            $this->update(['status' => MembershipOrderStatus::Cancelled]);
+
+            return $this;
+        });
+    }
+
+    /**
+     * Lock this order's row and report whether it is still pending. Callers must
+     * already be inside a transaction for the lock to hold.
+     */
+    public static function lockedPending(int $id): bool
+    {
+        return static::query()->whereKey($id)->lockForUpdate()->first()?->isPending() ?? false;
     }
 
     /** Mark this order rejected. */

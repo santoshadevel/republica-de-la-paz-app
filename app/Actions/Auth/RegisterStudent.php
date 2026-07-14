@@ -2,24 +2,25 @@
 
 namespace App\Actions\Auth;
 
-use App\Models\Student;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Auth\Events\Registered;
 
 /**
- * Registers a student portal account: a User with the `student` role, linked to
- * the domain ficha (creating it, or attaching to a ficha staff already made for
- * that email). Reusable by the web portal and the future API.
+ * Registers a student portal account: a User with the `student` role. The domain
+ * ficha is NOT linked here — staff may already have loaded a ficha for this email
+ * (with its credits, history and notes), so it is only attached once the address
+ * is verified (see App\Actions\Auth\VerifyStudentEmail). Reusable by the web portal
+ * and the future API.
  */
 class RegisterStudent
 {
     public function execute(string $name, string $email, string $password): User
     {
-        return DB::transaction(function () use ($name, $email, $password) {
-            $user = User::registerStudent($name, $email, $password);
-            Student::registerFrom($user, $name);
+        $user = User::registerStudent($name, $email, $password);
 
-            return $user;
-        });
+        // Sends the verification link (MustVerifyEmail + framework listener).
+        event(new Registered($user));
+
+        return $user;
     }
 }
