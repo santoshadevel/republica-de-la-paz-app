@@ -1,7 +1,7 @@
 # Módulo Membresías y Pases — diseño detallado (Fase 4)
 
 > **Fuente de verdad del diseño de este módulo.** Complementa [REQUISITOS.md](REQUISITOS.md)
-> (qué pide el cliente) y [../SPEC.md](../SPEC.md) (plan de fases). Convenciones en
+> (qué pide el cliente + plan por fases). Convenciones y decisiones en
 > [../CLAUDE.md](../CLAUDE.md). Código en inglés; dominio/UI en español.
 
 ## 1. Objetivo

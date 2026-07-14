@@ -168,5 +168,5 @@ el bot los comunique en vez de fallar).
 ## 9. Relación con otras fuentes
 
 - Negocio / PDF del cliente: [REQUISITOS.md](REQUISITOS.md).
-- Plan por fases: [SPEC.md](../SPEC.md) — **falta una fase explícita de API/MCP/bot** (hoy termina en Fase 10 · Notificaciones).
+- Plan por fases: [REQUISITOS.md](REQUISITOS.md) — **falta una fase explícita de API/MCP/bot** (hoy termina en Fase 10 · Notificaciones).
 - Membresías: [MODULO_MEMBRESIAS.md](MODULO_MEMBRESIAS.md).

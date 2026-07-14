@@ -38,10 +38,10 @@ que un solo evento de negocio (p. ej. la venta de una membresía) impacta a la v
 CRM, habilita reservas, registra el ingreso contable y deja al alumno disponible para
 comunicación.
 
-El plan completo, alcance por fases y criterios de aceptación están en [SPEC.md](SPEC.md).
-Los **requisitos del cliente transcritos del PDF** (fuente de verdad del negocio, checklist
-trazable por fase) están en [docs/REQUISITOS.md](docs/REQUISITOS.md) — **nada del PDF debe
-perderse**: al construir cada fase, verificar y marcar sus ítems ahí.
+El **plan por fases y el estado de cada requisito** están en [docs/REQUISITOS.md](docs/REQUISITOS.md):
+los **requisitos del cliente transcritos del PDF** (fuente de verdad del negocio) como checklist
+trazable, con su fase asignada — **nada del PDF debe perderse**: al construir cada fase, verificar y
+marcar sus ítems ahí. Ver "Dónde vive qué" más abajo.
 
 - **Marca inicial:** Santosha (Paraguay). Moneda por defecto: Guaraníes (Gs) — pero
   **configurable**, ver "Arquitectura white-label".
@@ -52,6 +52,32 @@ perderse**: al construir cada fase, verificar y marcar sus ítems ahí.
   estático hecho con Claude Design. Es la **referencia visual** de la Fase 9 (identidad,
   paleta, secciones, copy), no código a copiar tal cual: se traduce a Blade + Tailwind.
   Ver su [CLAUDE.md](docs/santosha-demo-html/CLAUDE.md) para paleta, tipografía y voz.
+
+## Dónde vive qué (documentación)
+
+| Documento | Qué contiene |
+|-----------|--------------|
+| [docs/REQUISITOS.md](docs/REQUISITOS.md) | **Fuente de verdad del negocio + plan por fases.** Requisitos del PDF como checklist trazable, con fase y estado (`[ ]` / `[~]` / `[x]`) por ítem. |
+| **CLAUDE.md** (este archivo) | Convenciones, reglas innegociables, decisiones de arquitectura y de paquetes, roles, módulos, estado general. |
+| [docs/BOT.md](docs/BOT.md) | Especificación del bot AI: capacidades, mapeo bot→dominio, superficie API/MCP. |
+| [docs/MODULO_MEMBRESIAS.md](docs/MODULO_MEMBRESIAS.md) | Diseño del módulo de membresías (`StudentMembership` + `CreditMovement`). |
+| [docs/santosha-demo-html/](docs/santosha-demo-html/) | Maquetas de la landing (referencia visual de Fase 9). |
+
+### `SPEC.md` NO es el plan del proyecto (IMPORTANTE)
+
+**`SPEC.md` no existe en este repo y nunca debe commitearse ni pushearse.** No es un
+documento del proyecto: lo **genera el comando `/global-worktree`** dentro de cada git
+worktree, y describe el objetivo, alcance y criterios de aceptación **de ese cambio puntual
+y nada más**. Queda excluido de git vía el `info/exclude` de su worktree, así que es
+efímero y desaparece con él.
+
+- ¿Buscás el **plan por fases** o el estado de un requisito? → [docs/REQUISITOS.md](docs/REQUISITOS.md).
+- ¿Buscás **decisiones técnicas o convenciones**? → este archivo.
+- ¿Estás dentro de un worktree y ves un `SPEC.md`? → es el spec **de esa rama**, escrito por
+  `/global-worktree`. No lo agregues al commit.
+
+> No agregar referencias a `SPEC.md` desde la documentación del repo: apuntarían a un
+> archivo que en `main` nunca existe. Fue una confusión recurrente.
 
 ## Arquitectura white-label / API (IMPORTANTE)
 
@@ -238,5 +264,15 @@ Registro de evaluaciones (Regla #0):
 
 ## Estado / fases
 
-Fase 0 (Infra) ✅ completa. Siguiente: **Fase 1 — Auth y roles (Gates/Policies)**.
-Ver la lista de tareas por fase en [SPEC.md](SPEC.md).
+Fases **0–8 ✅ completas** (infra, auth/roles, CRM, membresías, agenda grupal,
+acompañamientos e individuales, contabilidad, dashboard y liquidación de honorarios).
+
+**En curso: Fase 9 — Landing pública + portal del alumno.** Del portal ya están el registro
+con verificación de email, las solicitudes de pase y el calendario responsive; falta la
+**landing pública** (secciones de contenido, pases, profesionales, FAQs, contacto).
+
+Pendientes conocidos fuera de Fase 9: generador de horario semanal recurrente (Fase 5),
+panel del rol `practitioner` (Fase 6), reportes/rankings/exportación contable (Fase 8) y
+notificaciones (Fase 10).
+
+El detalle por ítem, con su estado, está en [docs/REQUISITOS.md](docs/REQUISITOS.md).
