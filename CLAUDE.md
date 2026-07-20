@@ -61,6 +61,7 @@ marcar sus ítems ahí. Ver "Dónde vive qué" más abajo.
 | **CLAUDE.md** (este archivo) | Convenciones, reglas innegociables, decisiones de arquitectura y de paquetes, roles, módulos, estado general. |
 | [docs/BOT.md](docs/BOT.md) | Especificación del bot AI: capacidades, mapeo bot→dominio, superficie API/MCP. |
 | [docs/MODULO_MEMBRESIAS.md](docs/MODULO_MEMBRESIAS.md) | Diseño del módulo de membresías (`StudentMembership` + `CreditMovement`). |
+| [docs/DEPLOY.md](docs/DEPLOY.md) | **Runbook de deploy.** CI/CD a DigitalOcean: build en GitHub Actions → GHCR → droplet. Bootstrap del server, secrets, DNS/TLS y operación día a día. |
 | [docs/santosha-demo-html/](docs/santosha-demo-html/) | Maquetas de la landing (referencia visual de Fase 9). |
 
 ### `SPEC.md` NO es el plan del proyecto (IMPORTANTE)
@@ -252,6 +253,12 @@ Registro de evaluaciones (Regla #0):
 - **Calendario (Agenda):** FullCalendar JS vendorizado en `public/js/vendor/fullcalendar/`
   (20.6k★, MIT) sobre página Filament propia; los wrappers PHP (saade 405★, guava 306★) se
   descartaron por <1000★.
+- **Deploy / infra (Fase 9):** imagen Docker propia (`docker/php/Dockerfile.prod`)
+  publicada en **GHCR** desde **GitHub Actions** en cada push a `dev`; el droplet solo
+  hace `pull`. Reverse proxy **Caddy** (58k★, Apache-2.0) por su **TLS automático**
+  (Let's Encrypt) sin certbot y menos RAM que nginx+certbot en el droplet de 1 GB. MySQL
+  = cluster administrado de DO (SSL vía `MYSQL_ATTR_SSL_CA`, ya soportado por
+  `config/database.php`). Detalle y runbook en [docs/DEPLOY.md](docs/DEPLOY.md).
 
 ## Reglas de negocio clave (referencia rápida)
 

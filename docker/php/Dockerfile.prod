@@ -1,0 +1,89 @@
+# syntax=docker/dockerfile:1
+
+###############################################################################
+# Imagen de PRODUCCIÓN de Santosha ERP.
+#
+# Se buildea en los runners de GitHub Actions (no en el droplet de 1 GB) y se
+# publica en GHCR. Hornea adentro las dependencias de Composer (--no-dev) y los
+# assets de Vite ya compilados: en el server no se instala ni compila nada.
+###############################################################################
+
+########################################
+# Stage 1 — Compilar los assets (Vite)
+########################################
+FROM node:22-alpine AS assets
+
+WORKDIR /app
+
+# Deps de JS contra el lockfile (reproducible)
+COPY package.json package-lock.json ./
+RUN npm ci
+
+# Bundle de producción -> public/build
+COPY vite.config.js ./
+COPY resources ./resources
+COPY public ./public
+RUN npm run build
+
+
+########################################
+# Stage 2 — Runtime PHP (php-fpm) + app
+########################################
+FROM php:8.4-fpm-alpine AS app
+
+# Librerías de sistema + extensiones PHP (mismo set que la imagen de dev, + rsync
+# para publicar el web root compartido con Caddy).
+RUN apk add --no-cache \
+        bash \
+        git \
+        rsync \
+        icu-dev \
+        libzip-dev \
+        oniguruma-dev \
+        freetype-dev \
+        libjpeg-turbo-dev \
+        libpng-dev \
+    && apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j"$(nproc)" \
+        pdo_mysql \
+        intl \
+        bcmath \
+        zip \
+        gd \
+        exif \
+        pcntl \
+    && apk del .build-deps
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www/html
+
+# 1) Instalar deps PHP primero (mejor caché de capas), sin dev y sin scripts:
+#    los scripts (package:discover) necesitan bootear la app y todavía no está
+#    el código; el manifiesto de paquetes se genera solo en runtime.
+COPY composer.json composer.lock ./
+RUN composer install \
+        --no-dev \
+        --no-interaction \
+        --prefer-dist \
+        --no-scripts \
+        --no-autoloader
+
+# 2) Copiar el código de la app (el .dockerignore excluye vendor, node_modules,
+#    .env, .git, storage/logs, etc.)
+COPY . .
+
+# 3) Traer los assets compilados desde el stage de Node
+COPY --from=assets /app/public/build ./public/build
+
+# 4) Autoloader optimizado ahora que están todas las clases
+RUN composer dump-autoload --no-dev --optimize --no-scripts
+
+# 5) Entrypoint de producción: espera la DB, migra, cachea config y publica assets
+COPY docker/php/entrypoint.prod.sh /usr/local/bin/entrypoint
+RUN chmod +x /usr/local/bin/entrypoint \
+    && chown -R www-data:www-data /var/www/html
+
+ENTRYPOINT ["entrypoint"]
+CMD ["php-fpm"]

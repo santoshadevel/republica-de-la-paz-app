@@ -1,0 +1,31 @@
+# Caddy — reverse proxy con TLS automático (Let's Encrypt).
+# Sirve los estáticos de public/ (montados desde el volumen `webroot`) y pasa
+# las peticiones PHP a php-fpm (servicio `app`, puerto 9000).
+#
+# El dominio y el email de ACME llegan por variables de entorno definidas en el
+# .env del droplet (APP_DOMAIN, ACME_EMAIL).
+
+{
+	email {$ACME_EMAIL}
+}
+
+{$APP_DOMAIN} {
+	root * /var/www/html/public
+	encode zstd gzip
+
+	php_fastcgi app:9000
+
+	file_server
+
+	header {
+		X-Content-Type-Options nosniff
+		X-Frame-Options SAMEORIGIN
+		Referrer-Policy strict-origin-when-cross-origin
+		-Server
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}

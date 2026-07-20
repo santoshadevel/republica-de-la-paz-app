@@ -1,0 +1,58 @@
+# Docker Compose de PRODUCCIÓN (usado también por el entorno DEV desplegado).
+#
+# Vive en el droplet, en /opt/santosha/. No buildea nada: descarga la imagen ya
+# publicada en GHCR por el workflow de GitHub Actions. Dos servicios:
+#   - app   : php-fpm con el código + assets horneados. Apunta al MySQL administrado.
+#   - caddy : reverse proxy con TLS automático; sirve public/ y proxya PHP a `app`.
+#
+# El MySQL NO corre acá: es el cluster administrado de DigitalOcean.
+# Variables sensibles y de entorno se leen de /opt/santosha/.env (ver .env.prod.example).
+
+name: santosha
+
+services:
+  app:
+    image: ${APP_IMAGE}
+    restart: unless-stopped
+    environment:
+      # Solo lo que necesita el entrypoint (shell) para esperar la DB.
+      # El resto de la config la lee Laravel del .env montado abajo.
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT:-3306}
+    volumes:
+      - ./.env:/var/www/html/.env:ro                          # config de Laravel
+      - ./ca-certificate.crt:/etc/ssl/certs/mysql-ca.crt:ro   # CA del cluster MySQL
+      - webroot:/webroot                                      # public/ publicado para Caddy
+      - storage:/var/www/html/storage                         # uploads + logs persistentes
+    networks:
+      - internal
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - webroot:/var/www/html/public:ro          # estáticos servidos por Caddy
+      - storage:/var/www/html/storage:ro         # resuelve el symlink public/storage
+      - caddy_data:/data                         # certificados TLS (persisten)
+      - caddy_config:/config
+    networks:
+      - internal
+
+volumes:
+  webroot:
+  storage:
+  caddy_data:
+  caddy_config:
+
+networks:
+  internal:
+    driver: bridge
