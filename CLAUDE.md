@@ -180,6 +180,12 @@ viaja en una rama y se integra **vía Pull Request**.
 - El PR es el punto donde corre la revisión (`/revision`) y quedan registrados el qué y
   el porqué del cambio.
 
+**Cuenta de GitHub del proyecto: `santoshadevel`.** El repo es
+`santoshadevel/republica-de-la-paz-app` y el remote usa el alias SSH `github-santosha`.
+El `gh` CLI del entorno puede estar autenticado con **otra** cuenta personal, ajena a este
+proyecto y sin permisos acá: si una operación de `gh` falla (crear PR, setear secrets),
+reautenticar con la cuenta de `santoshadevel` — nunca operar ni razonar con la otra cuenta.
+
 - Seguir las **convenciones oficiales de Laravel** y formatear con **Pint**
   (`docker compose exec app ./vendor/bin/pint`).
 - Modelos en singular (`Student`, `Membership`), tablas en plural snake_case
