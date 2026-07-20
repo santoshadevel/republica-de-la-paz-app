@@ -138,10 +138,39 @@ ssh -i ~/.ssh/santosha_deploy deploy@206.189.184.221 "docker ps"
 
 ---
 
-## 3. Secrets en GitHub (una vez)
+## 3. GitHub Actions: permisos y secrets (una vez)
 
-En el repo `santoshadevel/republica-de-la-paz-app` → **Settings → Secrets and variables →
-Actions**, o por CLI:
+> **Actions no se activa a mano**: viene habilitado por defecto. El workflow
+> `.github/workflows/deploy.yml` *es* el Action; la pestaña **Actions** del repo aparece
+> sola apenas ese archivo está en GitHub.
+
+### 3.1 El workflow tiene que estar en la rama `dev`
+
+Con un trigger `push`, GitHub ejecuta el workflow **tal como existe en la rama que recibe
+el push**. Es decir, `.github/workflows/deploy.yml` debe estar **dentro de `dev`**.
+Mergeando el PR a `main` y creando `dev` desde `main` (paso 5) queda bien solo.
+
+### 3.2 Permisos de escritura (para publicar en GHCR)
+
+**Settings → Actions → General → Workflow permissions** → marcar
+**"Read and write permissions"**.
+
+Sin esto el `GITHUB_TOKEN` no puede subir la imagen al registry. El workflow ya declara
+`permissions: packages: write`, pero un workflow **no puede elevarse** por encima del
+default del repo.
+
+### 3.3 Secrets
+
+**Settings → Secrets and variables → Actions → New repository secret**:
+
+| Nombre | Valor |
+|---|---|
+| `DEPLOY_HOST` | `206.189.184.221` |
+| `DEPLOY_USER` | `deploy` |
+| `DEPLOY_SSH_KEY` | contenido de la clave **privada** `~/.ssh/santosha_deploy` |
+
+O por CLI (con `gh` logueado con una cuenta **admin** del repo — verificá con
+`gh auth status`; si no, `gh auth login`):
 
 ```bash
 gh secret set DEPLOY_HOST    --body "206.189.184.221"
@@ -149,8 +178,8 @@ gh secret set DEPLOY_USER    --body "deploy"
 gh secret set DEPLOY_SSH_KEY < ~/.ssh/santosha_deploy      # la clave PRIVADA
 ```
 
-> No hace falta secret para GHCR: el build usa el `GITHUB_TOKEN` propio del workflow, y
-> el droplet se loguea a GHCR una sola vez en el paso 4.4.
+> No hace falta secret para GHCR en el build: usa el `GITHUB_TOKEN` propio del workflow.
+> Para que el **droplet** baje la imagen, ver 4.4.
 
 ---
 
@@ -190,9 +219,21 @@ nano /opt/santosha/.env
 Completá `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`, `ACME_EMAIL`.
 Dejá `APP_KEY` vacío por ahora.
 
-### 4.4 Login a GHCR (para poder bajar la imagen privada)
+### 4.4 Acceso del droplet a la imagen en GHCR
 
-Generá en GitHub un **Personal Access Token (classic)** con scope `read:packages` y:
+Elegí **una** de las dos opciones. Hacelo **después del primer build** (paso 5), que es
+cuando el paquete existe en GHCR.
+
+**Opción A — imagen pública (recomendada, este repo ya es público).**
+El droplet no necesita ningún token ni `docker login`, y no hay PAT que se venza.
+En GitHub: perfil/organización → **Packages** → `republica-de-la-paz-app` →
+**Package settings** → **Change visibility** → *Public*.
+
+> No expone nada nuevo: el código ya es público y el `.env` **nunca** entra a la imagen
+> (está excluido en `.dockerignore`).
+
+**Opción B — imagen privada.**
+Generá un **Personal Access Token (classic)** con scope `read:packages` y, en el droplet:
 
 ```bash
 echo "TU_PAT" | docker login ghcr.io -u TU_USUARIO_GITHUB --password-stdin
