@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://api.fontshare.com">
+<link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:'General Sans',system-ui,sans-serif;color:#43301f;background:#f4ecdf;-webkit-font-smoothing:antialiased}
+a{color:#bf693e;text-decoration:none}
+a:hover{color:#8e4629}
+::selection{background:#ebbc88;color:#43301f}
+input:focus{outline:none;border-color:#bf693e!important;box-shadow:0 0 0 3px rgba(191,105,62,.15)}
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:#f4ecdf">
+
+<header style="position:sticky;top:0;z-index:60;background:rgba(244,236,223,.86);backdrop-filter:blur(14px);border-bottom:1px solid rgba(142,70,41,.12)">
+  <div style="max-width:1200px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px">
+    <a href="#" style="flex:none;display:flex;align-items:center"><img src="assets/logo-color.png" alt="Santosha" style="height:42px;width:auto;display:block"></a>
+    <div style="display:flex;align-items:center;gap:14px">
+      <a href="#" style="font-size:15px;font-weight:600;color:#8e4629">Ingresar</a>
+      <a href="#" style="display:inline-block;background:#bf693e;color:#fff;font-size:14px;font-weight:600;padding:10px 20px;border-radius:999px;white-space:nowrap">Registrarme</a>
+    </div>
+  </div>
+</header>
+
+<div style="max-width:1120px;margin:0 auto;padding:22px 20px 0;display:flex;flex-wrap:wrap;align-items:center;gap:12px">
+  <span style="font-size:12.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#9a7b5f">Estados</span>
+  <div style="display:flex;flex-wrap:wrap;gap:8px">
+    <sc-for list="{{ states }}" as="s" hint-placeholder-count="3">
+      <button onClick="{{ s.select }}" style="{{ s.style }}">{{ s.label }}</button>
+    </sc-for>
+  </div>
+</div>
+
+<section style="max-width:1120px;margin:0 auto;padding:22px 20px 64px">
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:0;border-radius:26px;overflow:hidden;box-shadow:0 40px 90px -50px rgba(142,70,41,.7);background:#fbf6ec">
+    <div style="position:relative;background:#636b2f;color:#f0e6d6;padding:clamp(36px,5vw,56px);overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;min-height:340px">
+      <img src="assets/isotipo.png" alt="" aria-hidden="true" style="position:absolute;bottom:-50px;right:-50px;width:280px;opacity:.14">
+      <div style="position:relative">
+        <span style="display:inline-block;font-size:12.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#ebbc88;margin-bottom:18px">Sumate a la comunidad</span>
+        <h1 style="font-size:clamp(28px,3.6vw,40px);font-weight:600;line-height:1.08;margin:0 0 14px;color:#f4efe1">Hacete ciudadano de la República</h1>
+        <p style="font-size:16px;line-height:1.6;color:#d7cca8;margin:0;max-width:340px">Creá tu cuenta para reservar prácticas, solicitar tu pase y participar de los encuentros.</p>
+      </div>
+      <ul style="position:relative;list-style:none;padding:0;margin:28px 0 0;display:flex;flex-direction:column;gap:10px">
+        <li style="display:flex;gap:10px;font-size:15px;color:#e7dcc0"><span style="color:#ebbc88;font-weight:700">✓</span>Tu primera práctica es gratuita</li>
+        <li style="display:flex;gap:10px;font-size:15px;color:#e7dcc0"><span style="color:#ebbc88;font-weight:700">✓</span>Reservá y cancelá online</li>
+        <li style="display:flex;gap:10px;font-size:15px;color:#e7dcc0"><span style="color:#ebbc88;font-weight:700">✓</span>Comunidad cálida y cercana</li>
+      </ul>
+    </div>
+
+    <div style="padding:clamp(32px,4.5vw,52px)">
+      <!-- FORM VIEW -->
+      <sc-if value="{{ showForm }}" hint-placeholder-val="{{ true }}">
+        <div>
+          <h2 style="font-size:26px;font-weight:600;margin:0 0 6px;color:#43301f">Crear cuenta</h2>
+          <p style="font-size:15px;color:#6b5240;margin:0 0 26px">¿Ya sos ciudadano? <a href="#" style="font-weight:600">Ingresá</a></p>
+          <form onSubmit="{{ noop }}" style="display:flex;flex-direction:column;gap:18px">
+            <label style="display:flex;flex-direction:column;gap:7px;font-size:14px;font-weight:600;color:#5c4432">Nombre y apellido
+              <input type="text" value="Ana Giménez" style="{{ okInput }}">
+            </label>
+            <label style="display:flex;flex-direction:column;gap:7px;font-size:14px;font-weight:600;color:#5c4432">Email
+              <input type="email" value="ana@santosha.com" style="{{ emailInput }}">
+              <sc-if value="{{ emailErr }}" hint-placeholder-val="{{ false }}">
+                <span style="font-size:13.5px;font-weight:500;color:#bf693e">Ese email ya está registrado.</span>
+              </sc-if>
+            </label>
+            <label style="display:flex;flex-direction:column;gap:7px;font-size:14px;font-weight:600;color:#5c4432">Contraseña
+              <input type="password" value="1234" style="{{ passInput }}">
+              <sc-if value="{{ passErr }}" hint-placeholder-val="{{ false }}">
+                <span style="font-size:13.5px;font-weight:500;color:#bf693e">La contraseña debe tener al menos 8 caracteres.</span>
+              </sc-if>
+            </label>
+            <label style="display:flex;flex-direction:column;gap:7px;font-size:14px;font-weight:600;color:#5c4432">Confirmar contraseña
+              <input type="password" value="5678" style="{{ confirmInput }}">
+              <sc-if value="{{ confirmErr }}" hint-placeholder-val="{{ false }}">
+                <span style="font-size:13.5px;font-weight:500;color:#bf693e">Las contraseñas no coinciden.</span>
+              </sc-if>
+            </label>
+            <button type="submit" style="background:#bf693e;color:#fff;font:inherit;font-weight:600;font-size:16px;padding:15px;border:0;border-radius:999px;cursor:pointer">Crear mi cuenta</button>
+          </form>
+        </div>
+      </sc-if>
+
+      <!-- VERIFY EMAIL VIEW -->
+      <sc-if value="{{ showVerify }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;min-height:420px;justify-content:center;text-align:center;gap:18px;padding:8px 0">
+          <div style="width:76px;height:76px;border-radius:50%;background:rgba(99,107,47,.14);color:#636b2f;display:flex;align-items:center;justify-content:center;font-size:34px;margin:0 auto">✉</div>
+          <h2 style="font-size:26px;font-weight:600;margin:0;color:#43301f">Verificá tu email</h2>
+          <p style="font-size:16px;line-height:1.6;color:#6b5240;margin:0 auto;max-width:360px">Te enviamos un enlace de verificación a <strong style="color:#8e4629">ana@santosha.com</strong>. Abrilo para activar tu cuenta y entrar al portal.</p>
+          <div style="background:rgba(191,105,62,.08);border:1px solid rgba(191,105,62,.2);border-radius:14px;padding:14px 18px;font-size:14px;line-height:1.5;color:#8e4629;max-width:380px;margin:0 auto">Hasta que verifiques tu email no vas a poder ingresar al portal.</div>
+          <div style="display:flex;flex-direction:column;gap:12px;align-items:center;margin-top:4px">
+            <button onClick="{{ noop }}" style="background:#bf693e;color:#fff;font:inherit;font-weight:600;font-size:15px;padding:14px 28px;border:0;border-radius:999px;cursor:pointer">Reenviar el enlace</button>
+            <a href="#" style="font-size:14px;font-weight:600">Usar otro email</a>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+</section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1160,&quot;height&quot;:760}}">
+class Component extends DCLogic {
+  state = { view:'normal' };
+  views = [
+    {id:'normal', label:'Normal'},
+    {id:'errors', label:'Errores por campo'},
+    {id:'verify', label:'Verificá tu email'},
+  ];
+  renderVals(){
+    const v = this.state.view;
+    const errs = v==='errors';
+    const base = 'font:inherit;font-weight:400;padding:14px 16px;border-radius:12px;background:#fff;color:#43301f;transition:border-color .15s,box-shadow .15s;';
+    const border = (bad)=> base+'border:1px solid '+(bad?'#bf693e':'rgba(142,70,41,.22)');
+    return {
+      states: this.views.map(x=>({
+        label:x.label,
+        select:()=>this.setState({view:x.id}),
+        style:'cursor:pointer;font:inherit;font-size:13.5px;font-weight:600;padding:9px 16px;border-radius:999px;border:1px solid '+(v===x.id?'#bf693e':'rgba(142,70,41,.22)')+';background:'+(v===x.id?'#bf693e':'transparent')+';color:'+(v===x.id?'#fff':'#8e4629'),
+      })),
+      showForm: v!=='verify',
+      showVerify: v==='verify',
+      emailErr: errs, passErr: errs, confirmErr: errs,
+      okInput: border(false),
+      emailInput: border(errs),
+      passInput: border(errs),
+      confirmInput: border(errs),
+      noop:(e)=>e.preventDefault(),
+    };
+  }
+}
+</script>
+</body>
+</html>

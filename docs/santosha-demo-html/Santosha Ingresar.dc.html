@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://api.fontshare.com">
+<link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:'General Sans',system-ui,sans-serif;color:#43301f;background:#f4ecdf;-webkit-font-smoothing:antialiased}
+a{color:#bf693e;text-decoration:none}
+a:hover{color:#8e4629}
+::selection{background:#ebbc88;color:#43301f}
+input:focus{outline:none;border-color:#bf693e!important;box-shadow:0 0 0 3px rgba(191,105,62,.15)}
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:#f4ecdf">
+
+<!-- PORTAL HEADER (visitante) -->
+<header style="position:sticky;top:0;z-index:60;background:rgba(244,236,223,.86);backdrop-filter:blur(14px);border-bottom:1px solid rgba(142,70,41,.12)">
+  <div style="max-width:1200px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px">
+    <a href="#" style="flex:none;display:flex;align-items:center"><img src="assets/logo-color.png" alt="Santosha" style="height:42px;width:auto;display:block"></a>
+    <div style="display:flex;align-items:center;gap:14px">
+      <a href="#" style="font-size:15px;font-weight:600;color:#8e4629">Ingresar</a>
+      <a href="#registro" style="display:inline-block;background:#bf693e;color:#fff;font-size:14px;font-weight:600;padding:10px 20px;border-radius:999px;white-space:nowrap">Registrarme</a>
+    </div>
+  </div>
+</header>
+
+<!-- STATE SWITCHER -->
+<div style="max-width:1120px;margin:0 auto;padding:22px 20px 0;display:flex;flex-wrap:wrap;align-items:center;gap:12px">
+  <span style="font-size:12.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#9a7b5f">Estados</span>
+  <div style="display:flex;flex-wrap:wrap;gap:8px">
+    <sc-for list="{{ states }}" as="s" hint-placeholder-count="3">
+      <button onClick="{{ s.select }}" style="{{ s.style }}">{{ s.label }}</button>
+    </sc-for>
+  </div>
+</div>
+
+<!-- AUTH CARD -->
+<section style="max-width:1120px;margin:0 auto;padding:22px 20px 64px">
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:0;border-radius:26px;overflow:hidden;box-shadow:0 40px 90px -50px rgba(142,70,41,.7);background:#fbf6ec">
+    <!-- brand panel -->
+    <div style="position:relative;background:#8e4629;color:#f4ecdf;padding:clamp(36px,5vw,56px);overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;min-height:340px">
+      <img src="assets/isotipo.png" alt="" aria-hidden="true" style="position:absolute;bottom:-50px;right:-50px;width:280px;opacity:.16">
+      <div style="position:relative">
+        <span style="display:inline-block;font-size:12.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#ebbc88;margin-bottom:18px">Portal del ciudadano</span>
+        <h1 style="font-size:clamp(28px,3.6vw,40px);font-weight:600;line-height:1.08;margin:0 0 14px">Bienvenida/o de nuevo a la República</h1>
+        <p style="font-size:16px;line-height:1.6;color:#e7cfb6;margin:0;max-width:340px">Ingresá para reservar tus prácticas, ver tu pase y sumarte a los encuentros de la comunidad.</p>
+      </div>
+      <div style="position:relative;display:flex;gap:22px;margin-top:32px">
+        <div><div style="font-size:22px;font-weight:600;color:#ebbc88">Reservá</div><div style="font-size:13.5px;color:#d7bfa5">tus prácticas</div></div>
+        <div><div style="font-size:22px;font-weight:600;color:#ebbc88">Gestioná</div><div style="font-size:13.5px;color:#d7bfa5">tu pase</div></div>
+      </div>
+    </div>
+    <!-- form panel -->
+    <div style="padding:clamp(32px,4.5vw,52px)">
+      <h2 style="font-size:26px;font-weight:600;margin:0 0 6px;color:#43301f">Ingresar</h2>
+      <p style="font-size:15px;color:#6b5240;margin:0 0 26px">¿Todavía no sos ciudadano? <a href="#registro" style="font-weight:600">Registrate</a></p>
+
+      <sc-if value="{{ blocked }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;gap:12px;align-items:flex-start;background:rgba(191,105,62,.1);border:1px solid rgba(191,105,62,.3);border-radius:14px;padding:14px 16px;margin-bottom:22px">
+          <span style="flex:none;width:22px;height:22px;border-radius:50%;background:#bf693e;color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700">!</span>
+          <div style="font-size:14.5px;line-height:1.5;color:#8e4629"><strong style="color:#8e4629">Demasiados intentos.</strong> Probá de nuevo en 42 segundos.</div>
+        </div>
+      </sc-if>
+
+      <form onSubmit="{{ noop }}" style="display:flex;flex-direction:column;gap:18px">
+        <label style="display:flex;flex-direction:column;gap:7px;font-size:14px;font-weight:600;color:#5c4432">Email
+          <input type="email" value="ana@santosha.com" style="{{ emailInputStyle }}">
+          <sc-if value="{{ credError }}" hint-placeholder-val="{{ false }}">
+            <span style="font-size:13.5px;font-weight:500;color:#bf693e">Las credenciales no coinciden.</span>
+          </sc-if>
+        </label>
+        <label style="display:flex;flex-direction:column;gap:7px;font-size:14px;font-weight:600;color:#5c4432">Contraseña
+          <input type="password" value="123456" style="font:inherit;font-weight:400;padding:14px 16px;border:1px solid rgba(142,70,41,.22);border-radius:12px;background:#fff;color:#43301f;transition:border-color .15s,box-shadow .15s">
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:14.5px;color:#5c4432;cursor:pointer;user-select:none">
+          <input type="checkbox" checked style="width:18px;height:18px;accent-color:#bf693e">Recordarme
+        </label>
+        <button type="submit" style="background:#bf693e;color:#fff;font:inherit;font-weight:600;font-size:16px;padding:15px;border:0;border-radius:999px;cursor:pointer">Ingresar</button>
+      </form>
+      <p style="font-size:13px;color:#9a7b5f;margin:22px 0 0;text-align:center">Zona privada de la comunidad Santosha · República de la Paz</p>
+    </div>
+  </div>
+</section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1160,&quot;height&quot;:720}}">
+class Component extends DCLogic {
+  state = { view:'normal' };
+  views = [
+    {id:'normal', label:'Normal'},
+    {id:'error', label:'Error de credenciales'},
+    {id:'blocked', label:'Bloqueo por intentos'},
+  ];
+  renderVals(){
+    const v = this.state.view;
+    const credError = v==='error';
+    return {
+      states: this.views.map(x=>({
+        label:x.label,
+        select:()=>this.setState({view:x.id}),
+        style:'cursor:pointer;font:inherit;font-size:13.5px;font-weight:600;padding:9px 16px;border-radius:999px;border:1px solid '+(v===x.id?'#bf693e':'rgba(142,70,41,.22)')+';background:'+(v===x.id?'#bf693e':'transparent')+';color:'+(v===x.id?'#fff':'#8e4629'),
+      })),
+      credError,
+      blocked: v==='blocked',
+      emailInputStyle:'font:inherit;font-weight:400;padding:14px 16px;border:1px solid '+(credError?'#bf693e':'rgba(142,70,41,.22)')+';border-radius:12px;background:#fff;color:#43301f;transition:border-color .15s,box-shadow .15s',
+      noop:(e)=>e.preventDefault(),
+    };
+  }
+}
+</script>
+</body>
+</html>
