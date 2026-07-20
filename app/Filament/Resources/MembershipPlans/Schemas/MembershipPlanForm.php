@@ -4,6 +4,7 @@ namespace App\Filament\Resources\MembershipPlans\Schemas;
 
 use App\Enums\ActivityType;
 use App\Support\Money;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -80,6 +81,28 @@ class MembershipPlanForm
                             ->default(1),
                     ])
                     ->columns(2),
+                // What the public landing shows for this plan. Also part of the
+                // rules bag, so a new plan needs no migration and no brand copy
+                // ends up hardcoded in a view.
+                Fieldset::make('Publicación en la landing')
+                    ->schema([
+                        Toggle::make('rules.featured')
+                            ->label('Destacar como "Más elegido"')
+                            ->helperText('Resalta esta tarjeta entre los pases.'),
+                        Repeater::make('rules.features')
+                            ->label('Beneficios')
+                            ->simple(
+                                TextInput::make('feature')
+                                    ->required()
+                                    ->maxLength(120)
+                                    ->placeholder('Ej: Acceso a todas las disciplinas grupales'),
+                            )
+                            ->addActionLabel('Agregar beneficio')
+                            ->reorderable()
+                            ->default([])
+                            ->helperText('Se listan con ✓ en la tarjeta del pase, en el orden de acá.'),
+                    ])
+                    ->columns(1),
                 // Coverage: which activities the plan includes (hybrid model).
                 Fieldset::make('Actividades incluidas')
                     ->schema([

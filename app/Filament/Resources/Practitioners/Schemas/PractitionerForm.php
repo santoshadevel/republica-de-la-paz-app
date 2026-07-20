@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Practitioners\Schemas;
 
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -19,7 +20,7 @@ class PractitionerForm
                     ->relationship('user', 'name')
                     ->searchable()
                     ->preload()
-                    ->helperText('Opcional: vincula un usuario del panel a este profesional.'),
+                    ->helperText('Opcional. Asociá la cuenta con la que esta persona inicia sesión, para que a futuro pueda ver su propia agenda y honorarios. Dejalo vacío si el profesional no accede al sistema.'),
                 TextInput::make('first_name')
                     ->label('Nombre')
                     ->required()
@@ -52,6 +53,17 @@ class PractitionerForm
                     ->columnSpanFull(),
                 Textarea::make('bio')
                     ->label('Biografía')
+                    ->helperText('Se muestra en la landing pública, en "Referentes de la República".')
+                    ->columnSpanFull(),
+                FileUpload::make('avatar_path')
+                    ->label('Foto')
+                    ->image()
+                    ->avatar()
+                    ->imageEditor()
+                    ->disk('public')
+                    ->directory('practitioners')
+                    ->maxSize(2048)
+                    ->helperText('Retrato para la landing. Si no hay foto, se muestran las iniciales.')
                     ->columnSpanFull(),
                 Toggle::make('is_active')
                     ->label('Activo')

@@ -2,11 +2,14 @@
 
 namespace Tests\Feature;
 
-// use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ExampleTest extends TestCase
 {
+    // The landing reads the plan/practitioner catalog, so it needs the schema.
+    use RefreshDatabase;
+
     /**
      * A basic test example.
      */

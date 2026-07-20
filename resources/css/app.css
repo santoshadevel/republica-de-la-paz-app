@@ -6,4 +6,52 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Brand face of the public landing (loaded from Fontshare in the landing layout). */
+    --font-brand: 'General Sans', ui-sans-serif, system-ui, sans-serif;
+
+    /*
+     * Brand palette (docs/santosha-demo-html/CLAUDE.md). Named by role rather
+     * than by hue so a white-label deploy can re-point the values without
+     * renaming classes across every view.
+     */
+    --color-cream: #f4ecdf;
+    --color-cream-card: #fbf6ec;
+    --color-cream-deep: #efe3d1;
+
+    --color-ink: #43301f;
+    --color-ink-soft: #6b5240;
+    --color-ink-subtle: #9a7b5f;
+    --color-ink-muted: #5c4432;
+
+    --color-terracotta: #bf693e;
+    --color-earth: #8e4629;
+
+    --color-sand: #ebbc88;
+    --color-sand-soft: #e7cfb6;
+    --color-sand-dim: #c9ad90;
+
+    --color-olive: #636b2f;
+    --color-olive-soft: #d7cca8;
+    --color-olive-tint: #f4efe1;
+}
+
+@keyframes floaty {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-16px);
+    }
+}
+
+@utility animate-floaty {
+    animation: floaty 9s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-floaty {
+        animation: none;
+    }
 }

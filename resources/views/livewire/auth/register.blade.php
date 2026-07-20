@@ -1,44 +1,38 @@
-<div class="mx-auto max-w-sm">
-    <h1 class="text-2xl font-semibold tracking-tight text-stone-900">Crear mi cuenta</h1>
-    <p class="mt-1 text-sm text-stone-500">Unite a la comunidad y empezá a reservar.</p>
+<div>
+    <x-auth-card
+        tone="olive"
+        eyebrow="Sumate a la comunidad"
+        heading="Hacete ciudadano de la República"
+        lead="Creá tu cuenta para reservar prácticas, solicitar tu pase y participar de los encuentros."
+    >
+        <x-slot:aside>
+            <ul class="flex flex-col gap-2.5">
+                @foreach (['Tu primera práctica es gratuita', 'Reservá y cancelá online', 'Comunidad cálida y cercana'] as $perk)
+                    <li class="flex gap-2.5 text-[15px] text-olive-soft">
+                        <span class="font-bold text-sand" aria-hidden="true">✓</span>{{ $perk }}
+                    </li>
+                @endforeach
+            </ul>
+        </x-slot:aside>
 
-    <form wire:submit="register" class="mt-6 space-y-4">
-        <div>
-            <label for="name" class="block text-sm font-medium text-stone-700">Nombre y apellido</label>
-            <input type="text" id="name" wire:model="name" autocomplete="name"
-                   class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 focus:border-stone-500 focus:ring-stone-500">
-            @error('name') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-        </div>
+        <h2 class="mb-1.5 text-2xl font-semibold text-ink">Crear cuenta</h2>
+        <p class="mb-6 text-[15px] text-ink-soft">
+            ¿Ya sos ciudadano?
+            <a href="{{ route('login') }}" class="font-semibold text-terracotta hover:text-earth">Ingresá</a>
+        </p>
 
-        <div>
-            <label for="email" class="block text-sm font-medium text-stone-700">Email</label>
-            <input type="email" id="email" wire:model="email" autocomplete="email"
-                   class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 focus:border-stone-500 focus:ring-stone-500">
-            @error('email') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-        </div>
+        <form wire:submit="register" class="flex flex-col gap-4.5">
+            <x-form-field label="Nombre y apellido" name="name" autocomplete="name" wire:model="name" />
+            <x-form-field label="Email" name="email" type="email" autocomplete="email" wire:model="email" />
+            <x-form-field label="Contraseña" name="password" type="password" autocomplete="new-password" wire:model="password" />
+            <x-form-field label="Confirmar contraseña" name="password_confirmation" type="password"
+                          autocomplete="new-password" wire:model="password_confirmation" />
 
-        <div>
-            <label for="password" class="block text-sm font-medium text-stone-700">Contraseña</label>
-            <input type="password" id="password" wire:model="password" autocomplete="new-password"
-                   class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 focus:border-stone-500 focus:ring-stone-500">
-            @error('password') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-        </div>
-
-        <div>
-            <label for="password_confirmation" class="block text-sm font-medium text-stone-700">Repetir contraseña</label>
-            <input type="password" id="password_confirmation" wire:model="password_confirmation" autocomplete="new-password"
-                   class="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 focus:border-stone-500 focus:ring-stone-500">
-        </div>
-
-        <button type="submit"
-                class="w-full rounded-lg bg-stone-900 px-4 py-2.5 font-medium text-white hover:bg-stone-700">
-            <span wire:loading.remove wire:target="register">Crear cuenta</span>
-            <span wire:loading wire:target="register">Creando…</span>
-        </button>
-    </form>
-
-    <p class="mt-6 text-center text-sm text-stone-500">
-        ¿Ya tenés cuenta?
-        <a href="{{ route('login') }}" class="font-medium text-stone-900 hover:underline">Ingresá</a>
-    </p>
+            <button type="submit"
+                    class="cursor-pointer rounded-full bg-terracotta py-4 text-base font-semibold text-white transition hover:bg-earth">
+                <span wire:loading.remove wire:target="register">Crear mi cuenta</span>
+                <span wire:loading wire:target="register">Creando…</span>
+            </button>
+        </form>
+    </x-auth-card>
 </div>
