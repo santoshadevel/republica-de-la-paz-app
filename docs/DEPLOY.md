@@ -34,33 +34,60 @@ Archivos que participan (todos en el repo):
 
 ## 0. Prerrequisitos (una vez)
 
+### 0.0 Droplet dedicado
+
+> ⚠️ **Santosha va en un droplet propio.** El droplet `ubuntu-s-1vcpu-1gb-intel-nyc1-01`
+> (`206.189.184.221`) **NO se toca**: ahí corre la **API de UmbralClub en producción**,
+> con su propio nginx ocupando los puertos 80 y 443. Caddy necesita esos puertos, así que
+> compartir ese server implicaría romper producción.
+
+Creá un droplet nuevo en DigitalOcean:
+
+- **Imagen:** Ubuntu 24.04 LTS
+- **Plan:** 2 GB RAM / 1 vCPU (cómodo para Laravel + Filament). Con 1 GB también anda
+  para dev, pero el swap del paso 1.1 pasa a ser obligatorio.
+- **Región:** NYC1 (la misma que el cluster MySQL, para latencia baja)
+- **Autenticación:** tu clave SSH
+
+Anotá su IP pública: es el `<IP_DROPLET>` que se usa en todo el resto de esta guía.
+
 ### 0.1 DNS
 
-Creá un registro **A**:
+Creá (o actualizá) el registro **A** apuntando al **droplet nuevo**:
 
 ```
-santosha.dev.umbralclub.com  →  206.189.184.221
+santosha.dev.umbralclub.com  →  <IP_DROPLET>
 ```
 
 Verificá que resuelva antes de seguir (el TLS falla si el DNS no apunta al droplet):
 
 ```bash
-dig +short santosha.dev.umbralclub.com   # debe devolver 206.189.184.221
+dig +short santosha.dev.umbralclub.com   # debe devolver <IP_DROPLET>
 ```
 
-### 0.2 Datos del cluster MySQL administrado
+### 0.2 Base y usuario dedicados en el cluster MySQL
 
-En el panel de DO → tu cluster → **Connection Details**, anotá: host, puerto (≈ `25060`),
-usuario (`doadmin`), password, nombre de la base (`defaultdb`) y **descargá el
-certificado CA** (`ca-certificate.crt`).
+El cluster administrado (`db-mysql-nyc1-93329`) **está compartido con UmbralClub**. No uses
+`defaultdb` ni el usuario `doadmin`: creá lo tuyo, así un error de Santosha no puede tocar
+los datos del otro proyecto.
 
-> Opcional recomendado: en el panel del cluster, en **Users & Databases**, creá una base
-> `santosha` dedicada en vez de usar `defaultdb`. Si lo hacés, ajustá `DB_DATABASE`.
+En el panel del cluster → **Users & Databases**:
+
+1. Creá la base **`santosha_dev`**.
+2. Creá el usuario **`santosha`** (DO le genera la password).
+
+Después, en **Connection Details**, anotá host y puerto (≈ `25060`) y **descargá el
+certificado CA** (`ca-certificate.crt`). Esos valores van al `.env` del droplet:
+`DB_DATABASE=santosha_dev`, `DB_USERNAME=santosha`, `DB_PASSWORD=...`.
+
+> Comparten CPU/RAM del cluster con producción de UmbralClub. Para un entorno dev de bajo
+> tráfico alcanza; si más adelante mete ruido, se separa en su propio cluster.
 
 ### 0.3 Firewall del cluster
 
-En **Settings → Trusted Sources** del cluster, agregá el droplet (por nombre o por su IP
-`206.189.184.221`) para que pueda conectarse.
+En **Settings → Trusted Sources** del cluster, agregá el **droplet nuevo** (por nombre o
+por su IP `<IP_DROPLET>`) para que pueda conectarse. No quites los orígenes que ya estén:
+son los de UmbralClub.
 
 ---
 
@@ -69,7 +96,7 @@ En **Settings → Trusted Sources** del cluster, agregá el droplet (por nombre 
 Conectate como root:
 
 ```bash
-ssh root@206.189.184.221
+ssh root@<IP_DROPLET>
 ```
 
 ### 1.1 Swap (clave con 1 GB de RAM)
@@ -125,7 +152,7 @@ ssh-keygen -t ed25519 -C "gha-deploy-santosha" -f ~/.ssh/santosha_deploy -N ""
 Autorizá la **pública** en el droplet:
 
 ```bash
-ssh-copy-id -i ~/.ssh/santosha_deploy.pub deploy@206.189.184.221
+ssh-copy-id -i ~/.ssh/santosha_deploy.pub deploy@<IP_DROPLET>
 # o, manualmente, pegá el contenido de ~/.ssh/santosha_deploy.pub en
 # /home/deploy/.ssh/authorized_keys del droplet.
 ```
@@ -133,7 +160,7 @@ ssh-copy-id -i ~/.ssh/santosha_deploy.pub deploy@206.189.184.221
 Probá que entra:
 
 ```bash
-ssh -i ~/.ssh/santosha_deploy deploy@206.189.184.221 "docker ps"
+ssh -i ~/.ssh/santosha_deploy deploy@<IP_DROPLET> "docker ps"
 ```
 
 ---
@@ -165,7 +192,7 @@ default del repo.
 
 | Nombre | Valor |
 |---|---|
-| `DEPLOY_HOST` | `206.189.184.221` |
+| `DEPLOY_HOST` | `<IP_DROPLET>` |
 | `DEPLOY_USER` | `deploy` |
 | `DEPLOY_SSH_KEY` | contenido de la clave **privada** `~/.ssh/santosha_deploy` |
 
@@ -173,7 +200,7 @@ O por CLI (con `gh` logueado con una cuenta **admin** del repo — verificá con
 `gh auth status`; si no, `gh auth login`):
 
 ```bash
-gh secret set DEPLOY_HOST    --body "206.189.184.221"
+gh secret set DEPLOY_HOST    --body "<IP_DROPLET>"
 gh secret set DEPLOY_USER    --body "deploy"
 gh secret set DEPLOY_SSH_KEY < ~/.ssh/santosha_deploy      # la clave PRIVADA
 ```
@@ -185,7 +212,7 @@ gh secret set DEPLOY_SSH_KEY < ~/.ssh/santosha_deploy      # la clave PRIVADA
 
 ## 4. Configuración en el droplet (una vez)
 
-Ya como usuario `deploy` (`ssh -i ~/.ssh/santosha_deploy deploy@206.189.184.221`):
+Ya como usuario `deploy` (`ssh -i ~/.ssh/santosha_deploy deploy@<IP_DROPLET>`):
 
 ### 4.1 Carpeta del proyecto
 
@@ -201,7 +228,7 @@ Desde **tu máquina local**, parado en el repo:
 ```bash
 scp -i ~/.ssh/santosha_deploy \
   docker-compose.prod.yml docker/caddy/Caddyfile \
-  deploy@206.189.184.221:/opt/santosha/
+  deploy@<IP_DROPLET>:/opt/santosha/
 ```
 
 ### 4.3 CA del MySQL + `.env`
@@ -241,16 +268,17 @@ echo "TU_PAT" | docker login ghcr.io -u TU_USUARIO_GITHUB --password-stdin
 
 ### 4.5 Generar el APP_KEY
 
+El `APP_KEY` de Laravel son 32 bytes aleatorios en base64, así que se genera **sin
+necesidad de la imagen** (no hay que esperar al primer build):
+
 ```bash
-docker pull ghcr.io/santoshadevel/republica-de-la-paz-app:dev
-docker run --rm ghcr.io/santoshadevel/republica-de-la-paz-app:dev \
-  php artisan key:generate --show
+echo "base64:$(openssl rand -base64 32)"
 ```
 
-Pegá el `base64:...` que imprime en `APP_KEY=` del `.env`.
+Pegá esa línea completa en `APP_KEY=` del `.env`.
 
-> La imagen `:dev` existe recién después del primer build (paso 5). Si todavía no
-> corriste el workflow, hacé el paso 5 primero y volvé a generar el APP_KEY acá.
+> Que quede fijo **antes** del primer deploy es importante: si cambia después, se invalidan
+> las sesiones y cualquier dato cifrado con la clave anterior.
 
 ---
 
