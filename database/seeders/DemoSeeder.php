@@ -54,6 +54,29 @@ class DemoSeeder extends Seeder
     /** Password for every demo portal login. */
     private const DEMO_PASSWORD = 'password';
 
+    /**
+     * Fixed sample data instead of fakerphp: the production image is built with
+     * `composer --no-dev`, so `fake()` does not exist there and the seeder could
+     * not populate a deployed demo environment.
+     */
+    private const FIRST_NAMES = [
+        'Sofía', 'Mateo', 'Valentina', 'Joaquín', 'Camila', 'Santiago', 'Lucía', 'Facundo',
+        'Martina', 'Thiago', 'Julieta', 'Bruno', 'Renata', 'Emiliano', 'Abril', 'Gaspar',
+    ];
+
+    private const LAST_NAMES = [
+        'González', 'Benítez', 'Rodríguez', 'Villalba', 'Martínez', 'Ramírez', 'Ayala', 'Duarte',
+        'Cáceres', 'Ortiz', 'Giménez', 'Fernández', 'Rojas', 'Acosta', 'Torres', 'Vera',
+    ];
+
+    private const GOALS = [
+        'Mejorar la flexibilidad y soltar tensión de la espalda.',
+        'Bajar el estrés del trabajo y dormir mejor.',
+        'Volver a moverme después de una lesión.',
+        'Profundizar la práctica de meditación.',
+        'Ganar fuerza y constancia.',
+    ];
+
     public function run(): void
     {
         // Idempotent and independent of the demo guard below, so it also backfills
@@ -151,11 +174,12 @@ class DemoSeeder extends Seeder
         return collect(range(1, 16))->map(fn (int $i) => Student::firstOrCreate(
             ['email' => "alumno{$i}@".self::DEMO_EMAIL_DOMAIN],
             [
-                'first_name' => fake()->firstName(),
-                'last_name' => fake()->lastName(),
-                'phone' => fake()->numerify('09## ######'),
-                'acquisition_source' => fake()->randomElement($sources),
-                'goals' => fake()->optional()->sentence(),
+                'first_name' => self::FIRST_NAMES[($i - 1) % count(self::FIRST_NAMES)],
+                'last_name' => self::LAST_NAMES[($i - 1) % count(self::LAST_NAMES)],
+                'phone' => sprintf('09%02d %06d', 60 + $i, 100_000 + $i * 4_321),
+                'acquisition_source' => $sources[($i - 1) % count($sources)],
+                // Not everyone fills this in; leaving some blank keeps the CRM realistic.
+                'goals' => $i % 3 === 0 ? null : self::GOALS[($i - 1) % count(self::GOALS)],
                 'is_active' => true,
             ],
         ));
@@ -203,7 +227,7 @@ class DemoSeeder extends Seeder
             $sell->execute(
                 $student,
                 $plans[$slug],
-                now()->subDays(fake()->numberBetween(0, 15)),
+                now()->subDays(random_int(0, 15)),
                 $methods->random(),
             );
         }
@@ -226,7 +250,7 @@ class DemoSeeder extends Seeder
                     'room_id' => $rooms->random()->id,
                     'starts_at' => $startsAt,
                     'ends_at' => $startsAt->copy()->addHour(),
-                    'capacity' => fake()->numberBetween(8, 15),
+                    'capacity' => random_int(8, 15),
                     'status' => SessionStatus::Scheduled,
                 ]));
             }
@@ -244,7 +268,7 @@ class DemoSeeder extends Seeder
         $book = app(BookSession::class);
 
         foreach ($sessions as $session) {
-            foreach ($students->random(fake()->numberBetween(3, 8)) as $student) {
+            foreach ($students->random(random_int(3, 8)) as $student) {
                 try {
                     $book->execute($student, $session);
                 } catch (BookingException) {
@@ -264,7 +288,7 @@ class DemoSeeder extends Seeder
 
         foreach ($practitioners as $practitioner) {
             foreach (range(1, 6) as $slot) {
-                $startsAt = now()->addDays(fake()->numberBetween(1, 10))->setTime(fake()->numberBetween(9, 17), 0);
+                $startsAt = now()->addDays(random_int(1, 10))->setTime(random_int(9, 17), 0);
                 $appointment = Appointment::create([
                     'practitioner_id' => $practitioner->id,
                     'activity_id' => $activities->random()->id,
@@ -272,10 +296,11 @@ class DemoSeeder extends Seeder
                     'starts_at' => $startsAt,
                     'ends_at' => $startsAt->copy()->addHour(),
                     'status' => AppointmentStatus::Available,
-                    'price' => fake()->numberBetween(120_000, 250_000),
+                    'price' => random_int(120_000, 250_000),
                 ]);
 
-                if (fake()->boolean(60)) {
+                // Roughly 60% of the slots end up booked; the rest stay available.
+                if (random_int(1, 100) <= 60) {
                     try {
                         $book->execute($students->random(), $appointment);
                     } catch (AppointmentException) {
@@ -290,24 +315,29 @@ class DemoSeeder extends Seeder
     private function seedEvents(Collection $students): void
     {
         $practitioners = Practitioner::all();
-        $names = ['Círculo de mujeres', 'Taller de respiración', 'Retiro de fin de semana', 'Charla de bienestar'];
+        $names = [
+            ['Círculo de mujeres', 'Un encuentro mensual para compartir, sostener y celebrar en ronda. Sin experiencia previa.'],
+            ['Taller de respiración', 'Técnicas de pranayama y respiración consciente para regular el sistema nervioso.'],
+            ['Retiro de fin de semana', 'Dos días de práctica, silencio y alimentación consciente fuera de la ciudad.'],
+            ['Charla de bienestar', 'Conversación abierta sobre hábitos, descanso y sostener la práctica en el tiempo.'],
+        ];
         $register = app(RegisterForEvent::class);
 
-        foreach ($names as $i => $name) {
+        foreach ($names as $i => [$name, $description]) {
             $startsAt = now()->addDays(($i + 1) * 5)->setTime(19, 0);
             $event = Event::create([
                 'name' => $name,
-                'description' => fake()->paragraph(),
+                'description' => $description,
                 'location' => 'Sala Principal',
                 'starts_at' => $startsAt,
                 'ends_at' => $startsAt->copy()->addHours(2),
-                'price' => fake()->numberBetween(80_000, 200_000),
-                'capacity' => fake()->numberBetween(10, 25),
+                'price' => random_int(80_000, 200_000),
+                'capacity' => random_int(10, 25),
                 'status' => EventStatus::Scheduled,
             ]);
-            $event->facilitators()->sync($practitioners->random(fake()->numberBetween(1, 2))->pluck('id'));
+            $event->facilitators()->sync($practitioners->random(random_int(1, 2))->pluck('id'));
 
-            foreach ($students->random(fake()->numberBetween(4, 9)) as $student) {
+            foreach ($students->random(random_int(4, 9)) as $student) {
                 try {
                     $register->execute($student, $event);
                 } catch (EventException) {
@@ -346,7 +376,7 @@ class DemoSeeder extends Seeder
                 paymentMethod: $method,
                 attributes: [
                     'description' => $description,
-                    'occurred_on' => now()->subDays(fake()->numberBetween(0, 20))->toDateString(),
+                    'occurred_on' => now()->subDays(random_int(0, 20))->toDateString(),
                 ],
             );
         }

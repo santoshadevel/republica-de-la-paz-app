@@ -82,20 +82,51 @@ los datos del otro proyecto.
 En el panel del cluster → **Users & Databases**:
 
 1. Creá la base **`santosha_dev`**.
-2. Creá el usuario **`santosha`** (DO le genera la password).
+2. Creá el usuario **`santosha_dev`** (DO le genera la password; dejá el método de
+   autenticación en el default `caching_sha2_password`).
+
+**Acotá el usuario a su base.** DO crea los usuarios con privilegios sobre *todo* el
+cluster, así que sin este paso el aislamiento contra UmbralClub no es real. Conectate una
+vez como `doadmin` (host y password en **Connection Details**):
+
+```bash
+docker run --rm -it mysql:8.4 mysql \
+  -h <host>.db.ondigitalocean.com -P 25060 -u doadmin -p --ssl-mode=REQUIRED
+```
+
+```sql
+REVOKE ALL PRIVILEGES ON *.* FROM 'santosha_dev'@'%';
+GRANT ALL PRIVILEGES ON `santosha_dev`.* TO 'santosha_dev'@'%';
+FLUSH PRIVILEGES;
+SHOW GRANTS FOR 'santosha_dev'@'%';   -- deben quedar solo USAGE + la base propia
+```
+
+> Los privilegios globales no se re-aplican a conexiones ya abiertas: para comprobarlo,
+> reconectate con el usuario nuevo. `ALL` sobre su propia base es necesario — las
+> migraciones crean y alteran tablas.
 
 Después, en **Connection Details**, anotá host y puerto (≈ `25060`) y **descargá el
 certificado CA** (`ca-certificate.crt`). Esos valores van al `.env` del droplet:
-`DB_DATABASE=santosha_dev`, `DB_USERNAME=santosha`, `DB_PASSWORD=...`.
+`DB_DATABASE=santosha_dev`, `DB_USERNAME=santosha_dev`, `DB_PASSWORD=...`.
 
 > Comparten CPU/RAM del cluster con producción de UmbralClub. Para un entorno dev de bajo
 > tráfico alcanza; si más adelante mete ruido, se separa en su propio cluster.
 
 ### 0.3 Firewall del cluster
 
-En **Settings → Trusted Sources** del cluster, agregá el **droplet nuevo** (por nombre o
-por su IP `<IP_DROPLET>`) para que pueda conectarse. No quites los orígenes que ya estén:
-son los de UmbralClub.
+En **Settings → Trusted Sources** del cluster (no en el droplet: es otra sección del panel),
+agregá el **droplet nuevo** para que pueda conectarse. Se puede agregar por nombre, por IP
+o —preferible— por el **tag `santosha`**, que cubre de una vez cualquier droplet futuro del
+proyecto. No quites los orígenes que ya estén: son los de UmbralClub.
+
+Para verificar credenciales, SSL y firewall de una sola vez, desde el droplet:
+
+```bash
+set -a; . /opt/santosha/.env; set +a
+docker run --rm -v /opt/santosha/ca-certificate.crt:/ca.crt mysql:8.4 \
+  mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USERNAME" -p"$DB_PASSWORD" \
+  --ssl-ca=/ca.crt --ssl-mode=VERIFY_CA -e "SELECT DATABASE(), USER();" santosha_dev
+```
 
 ---
 
@@ -220,14 +251,17 @@ gh secret set DEPLOY_SSH_KEY < ~/.ssh/santosha_deploy      # la clave PRIVADA
 
 ## 4. Configuración en el droplet (una vez)
 
-Ya como usuario `deploy` (`ssh -i ~/.ssh/santosha_deploy deploy@<IP_DROPLET>`):
-
 ### 4.1 Carpeta del proyecto
 
+El usuario `deploy` **no tiene sudo** (paso 1.3, a propósito), así que la carpeta la crea
+`root`. Conectado como root:
+
 ```bash
-sudo mkdir -p /opt/santosha && sudo chown deploy:deploy /opt/santosha
-cd /opt/santosha
+mkdir -p /opt/santosha && chown deploy:deploy /opt/santosha
 ```
+
+El resto del paso 4 va ya como `deploy`
+(`ssh -i ~/.ssh/santosha_deploy deploy@<IP_DROPLET>`).
 
 ### 4.2 Copiar los archivos de deploy
 
@@ -289,8 +323,11 @@ cuando el paquete existe en GHCR.
 
 **Opción A — imagen pública (recomendada, este repo ya es público).**
 El droplet no necesita ningún token ni `docker login`, y no hay PAT que se venza.
-En GitHub: perfil/organización → **Packages** → `republica-de-la-paz-app` →
-**Package settings** → **Change visibility** → *Public*.
+
+> En la práctica **no hubo que hacer nada**: el package creado desde un repo público nace
+> público, y el primer `docker compose pull` del droplet funcionó sin login. Si en tu caso
+> el pull falla con `denied`, forzalo a mano: GitHub → perfil/organización → **Packages** →
+> `republica-de-la-paz-app` → **Package settings** → **Change visibility** → *Public*.
 
 > No expone nada nuevo: el código ya es público y el `.env` **nunca** entra a la imagen
 > (está excluido en `.dockerignore`).
@@ -344,7 +381,46 @@ curl -I https://santosha.dev.umbralclub.com
 cd /opt/santosha && docker compose -f docker-compose.prod.yml logs -f app
 ```
 
-Admin del panel: `https://santosha.dev.umbralclub.com/admin`.
+La respuesta esperada es **401**: es el basic auth de Caddy pidiendo credenciales, y que
+`curl` no proteste por el certificado confirma que el TLS se emitió bien.
+
+### 5.1 Sembrar la base
+
+Las migraciones corren solas, pero la base queda **vacía**. Desde el droplet:
+
+```bash
+cd /opt/santosha
+docker compose -f docker-compose.prod.yml exec -T app php artisan db:seed --force
+```
+
+Eso deja catálogos (roles, planes, actividades, salas, profesionales, contabilidad) y el
+dataset demo conectado. El `DemoSeeder` no depende de `fakerphp` justamente para poder
+correr acá, donde la imagen se buildea con `composer --no-dev`.
+
+### 5.2 Usuario admin
+
+El seeder crea `admin@santosha.test` / `password`, credencial **pública** (está en este
+repo). Cambiala o creá el tuyo con una contraseña propia, sin que pase por el historial:
+
+```bash
+read -p "Email admin: " E
+read -s -p "Password: " P; echo
+docker compose -f docker-compose.prod.yml exec -T -e E="$E" -e P="$P" app \
+  php artisan tinker --execute='
+    $u = App\Models\User::firstOrCreate(
+      ["email" => getenv("E")],
+      ["name" => "Admin Santosha", "password" => Illuminate\Support\Facades\Hash::make(getenv("P"))]
+    );
+    $u->password = Illuminate\Support\Facades\Hash::make(getenv("P"));
+    $u->save();
+    $u->syncRoles([App\Enums\Role::Admin->value]);
+    echo "admin listo: ".$u->email;
+  '
+unset P
+```
+
+Admin del panel: `https://santosha.dev.umbralclub.com/admin` (primero el basic auth del
+demo, después el login del panel).
 
 ---
 
