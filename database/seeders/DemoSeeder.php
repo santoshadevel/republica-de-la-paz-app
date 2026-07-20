@@ -12,6 +12,7 @@ use App\Enums\ActivityType;
 use App\Enums\AppointmentStatus;
 use App\Enums\EventStatus;
 use App\Enums\FeeType;
+use App\Enums\Role;
 use App\Enums\SessionStatus;
 use App\Enums\TransactionType;
 use App\Enums\Weekday;
@@ -34,9 +35,11 @@ use App\Models\Room;
 use App\Models\ScheduledSession;
 use App\Models\Student;
 use App\Models\StudentMembership;
+use App\Models\User;
 use App\Support\Money;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Hash;
 
 /**
  * Full connected demo dataset, built through the real Actions so the numbers add
@@ -45,6 +48,12 @@ use Illuminate\Support\Collection;
  */
 class DemoSeeder extends Seeder
 {
+    /** Marks the fichas this seeder owns, so backfills never touch real students. */
+    private const DEMO_EMAIL_DOMAIN = 'demo.test';
+
+    /** Password for every demo portal login. */
+    private const DEMO_PASSWORD = 'password';
+
     public function run(): void
     {
         // Idempotent and independent of the demo guard below, so it also backfills
@@ -52,10 +61,13 @@ class DemoSeeder extends Seeder
         $this->seedAvailability();
 
         if (StudentMembership::query()->exists()) {
+            $this->seedStudentLogins(); // backfills logins on an already-seeded database
+
             return; // demo already seeded
         }
 
         $students = $this->seedStudents();
+        $this->seedStudentLogins();
         $this->sellMemberships($students);
         $sessions = $this->seedGroupSessions();
         $this->bookSessions($students, $sessions);
@@ -137,7 +149,7 @@ class DemoSeeder extends Seeder
         $sources = ['instagram', 'facebook', 'google', 'referral', 'event', 'walk_in'];
 
         return collect(range(1, 16))->map(fn (int $i) => Student::firstOrCreate(
-            ['email' => "alumno{$i}@demo.test"],
+            ['email' => "alumno{$i}@".self::DEMO_EMAIL_DOMAIN],
             [
                 'first_name' => fake()->firstName(),
                 'last_name' => fake()->lastName(),
@@ -147,6 +159,31 @@ class DemoSeeder extends Seeder
                 'is_active' => true,
             ],
         ));
+    }
+
+    /**
+     * Portal login for each demo ficha, so the student portal can be exercised
+     * without going through registration + email verification by hand. Idempotent,
+     * and runs outside the demo guard so it also backfills an already-seeded database.
+     */
+    private function seedStudentLogins(): void
+    {
+        $students = Student::query()->where('email', 'like', '%@'.self::DEMO_EMAIL_DOMAIN)->get();
+
+        foreach ($students as $student) {
+            $user = User::firstOrCreate(
+                ['email' => $student->email],
+                [
+                    'name' => $student->fullName(),
+                    'password' => Hash::make(self::DEMO_PASSWORD),
+                    'email_verified_at' => now(),
+                ],
+            );
+
+            $user->syncRoles([Role::Student->value]);
+
+            Student::registerFrom($user, $student->fullName());
+        }
     }
 
     /** @param Collection<int, Student> $students */

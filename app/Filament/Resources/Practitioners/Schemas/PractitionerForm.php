@@ -20,7 +20,7 @@ class PractitionerForm
                     ->relationship('user', 'name')
                     ->searchable()
                     ->preload()
-                    ->helperText('Opcional: vincula un usuario del panel a este profesional.'),
+                    ->helperText('Opcional. Asociá la cuenta con la que esta persona inicia sesión, para que a futuro pueda ver su propia agenda y honorarios. Dejalo vacío si el profesional no accede al sistema.'),
                 TextInput::make('first_name')
                     ->label('Nombre')
                     ->required()
