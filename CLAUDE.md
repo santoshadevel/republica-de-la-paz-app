@@ -180,11 +180,23 @@ viaja en una rama y se integra **vía Pull Request**.
 - El PR es el punto donde corre la revisión (`/revision`) y quedan registrados el qué y
   el porqué del cambio.
 
-**Cuenta de GitHub del proyecto: `santoshadevel`.** El repo es
-`santoshadevel/republica-de-la-paz-app` y el remote usa el alias SSH `github-santosha`.
-El `gh` CLI del entorno puede estar autenticado con **otra** cuenta personal, ajena a este
-proyecto y sin permisos acá: si una operación de `gh` falla (crear PR, setear secrets),
-reautenticar con la cuenta de `santoshadevel` — nunca operar ni razonar con la otra cuenta.
+### Identidad de GitHub — verificar antes de operar (IMPORTANTE)
+
+Este repo es **`santoshadevel/republica-de-la-paz-app`**, con remote vía el alias SSH
+`github-santosha` (key dedicada, `IdentitiesOnly yes`) y autor de commits configurado
+**local al repo**. El lado git está aislado por construcción: no se puede pushear ni
+commitear con la identidad de otro proyecto.
+
+El punto débil es el **`gh` CLI**, que no usa el alias SSH sino un token HTTPS del entorno,
+que puede pertenecer a otra identidad, y que sin `--repo` infiere el repositorio del
+contexto. Para no operar nunca sobre el repo o la cuenta equivocados:
+
+- Verificar `git remote -v` antes de pushear o abrir un PR.
+- Pasar **siempre** `--repo santoshadevel/republica-de-la-paz-app` en los comandos `gh`.
+- Las **escrituras** en GitHub (secrets, settings de Actions, visibilidad de packages) las
+  ejecuta el usuario desde su cuenta; no se corren a ciegas desde el CLI.
+- Un `403` de `gh` significa identidad de entorno distinta: **frenar y avisar**, no buscar
+  rodeos.
 
 - Seguir las **convenciones oficiales de Laravel** y formatear con **Pint**
   (`docker compose exec app ./vendor/bin/pint`).
