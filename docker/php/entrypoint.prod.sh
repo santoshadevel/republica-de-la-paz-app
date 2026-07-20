@@ -3,6 +3,14 @@ set -e
 
 cd /var/www/html
 
+# APP_ROLE=web (default) -> migra, cachea y publica los assets, y sirve php-fpm.
+# APP_ROLE=scheduler     -> sólo espera la DB y corre `schedule:work`.
+# El scheduler NO migra ni cachea a propósito: si ambos contenedores lo hicieran,
+# competirían por las migraciones en cada deploy.
+APP_ROLE="${APP_ROLE:-web}"
+
+echo "==> Rol del contenedor: $APP_ROLE"
+
 echo "==> Preparando storage y bootstrap/cache..."
 mkdir -p \
     storage/framework/cache/data \
@@ -28,23 +36,25 @@ if [ -n "$DB_HOST" ]; then
     done
 fi
 
-echo "==> Enlazando storage público..."
-php artisan storage:link 2>/dev/null || true
+if [ "$APP_ROLE" = "web" ]; then
+    echo "==> Enlazando storage público..."
+    php artisan storage:link 2>/dev/null || true
 
-echo "==> Ejecutando migraciones..."
-php artisan migrate --force
+    echo "==> Ejecutando migraciones..."
+    php artisan migrate --force
 
-echo "==> Cacheando configuración, rutas y vistas..."
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+    echo "==> Cacheando configuración, rutas y vistas..."
+    php artisan config:cache
+    php artisan route:cache
+    php artisan view:cache
 
-# Publicar public/ (con los assets ya compilados) al volumen que sirve Caddy.
-# Se hace en cada arranque para que cada deploy refresque los assets.
-if [ -d /webroot ]; then
-    echo "==> Publicando assets al web root compartido..."
-    rsync -a --delete public/ /webroot/
+    # Publicar public/ (con los assets ya compilados) al volumen que sirve Caddy.
+    # Se hace en cada arranque para que cada deploy refresque los assets.
+    if [ -d /webroot ]; then
+        echo "==> Publicando assets al web root compartido..."
+        rsync -a --delete public/ /webroot/
+    fi
 fi
 
-echo "==> Listo. Arrancando php-fpm."
+echo "==> Listo. Arrancando: $*"
 exec "$@"

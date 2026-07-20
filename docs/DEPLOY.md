@@ -13,13 +13,18 @@ que a partir de ahí cada **push a la rama `dev`** haga deploy automático.
        │                                                                     │
        └── SSH al droplet ──► docker compose pull + up ──────────────────────┘
                                      │
-                       ┌─────────────┴──────────────┐
-                       ▼                             ▼
-                  app (php-fpm)               caddy (TLS + estáticos)
-                       │                             ▲
-                       ▼                             │  https://santosha.dev.umbralclub.com
-              MySQL administrado (DO)  ◄─── SSL ──────┘
+              ┌──────────────────────┼──────────────────────┐
+              ▼                      ▼                      ▼
+        app (php-fpm)          scheduler              caddy (TLS + estáticos)
+        migra y cachea      schedule:work                   ▲
+              │                      │                      │  https://santosha.dev.umbralclub.com
+              └──────────┬───────────┘                      │  (protegido con basic auth)
+                         ▼                                  │
+              MySQL administrado (DO)  ◄──── SSL ───────────┘
 ```
+
+El entorno es un **demo para clientes**: Caddy exige usuario/contraseña (basic auth) antes
+de llegar a la app, y manda `X-Robots-Tag: noindex` para que no lo indexen los buscadores.
 
 - **La imagen se buildea en GitHub, no en el droplet.** El droplet de 1 GB solo baja
   y levanta la imagen: no corre `composer install` ni `vite build`.
@@ -44,9 +49,12 @@ Archivos que participan (todos en el repo):
 Creá un droplet nuevo en DigitalOcean:
 
 - **Imagen:** Ubuntu 24.04 LTS
-- **Plan:** 2 GB RAM / 1 vCPU (cómodo para Laravel + Filament). Con 1 GB también anda
-  para dev, pero el swap del paso 1.1 pasa a ser obligatorio.
+- **Plan:** Basic / Regular — **1 vCPU, 1 GB RAM, 25 GB SSD** (`s-1vcpu-1gb`, USD 6/mes).
+  Alcanza para un demo de pocos usuarios porque el build pesado ocurre en GitHub; el
+  droplet solo corre los contenedores. **El swap del paso 1.1 es obligatorio con 1 GB.**
+  Si más adelante queda corto, DO permite redimensionar CPU/RAM y es reversible.
 - **Región:** NYC1 (la misma que el cluster MySQL, para latencia baja)
+- **Hostname:** `santosha-dev`
 - **Autenticación:** tu clave SSH
 
 Anotá su IP pública: es el `<IP_DROPLET>` que se usa en todo el resto de esta guía.
@@ -231,20 +239,48 @@ scp -i ~/.ssh/santosha_deploy \
   deploy@<IP_DROPLET>:/opt/santosha/
 ```
 
-### 4.3 CA del MySQL + `.env`
+### 4.3 CA del MySQL + archivos de configuración
 
-En el droplet, `/opt/santosha/`:
+En `/opt/santosha/` del droplet hacen falta **tres** archivos además del compose:
 
-- Subí el `ca-certificate.crt` del cluster (paso 0.2) a `/opt/santosha/ca-certificate.crt`.
-- Creá el `.env` a partir de la plantilla y completá los valores reales:
+**a) El certificado CA del cluster.** Subí el `ca-certificate.crt` que descargaste en el
+paso 0.2 a `/opt/santosha/ca-certificate.crt`.
+
+> Tiene que existir **antes** del primer `up`: si falta, Docker crea un *directorio* con
+> ese nombre y la conexión SSL falla de forma confusa.
+
+**b) El `.env` de Laravel** (plantilla: `.env.prod.example` del repo):
 
 ```bash
-# copiá el contenido de .env.prod.example del repo y pegalo en:
 nano /opt/santosha/.env
 ```
 
-Completá `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`, `ACME_EMAIL`.
-Dejá `APP_KEY` vacío por ahora.
+Completá `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` y el `APP_KEY`
+del paso 4.5.
+
+**c) El `.caddy.env`** (plantilla: `.caddy.env.example` del repo) con el dominio, el email
+de ACME y la contraseña del demo:
+
+```bash
+# 1. generá el hash de la contraseña que les vas a dar a tus clientes.
+#    El `sed` duplica los `$` (ver aviso abajo): copiá la salida tal cual.
+docker run --rm caddy:2-alpine caddy hash-password \
+  --plaintext 'LA_PASSWORD_QUE_ELIJAS' | sed 's/\$/$$/g'
+
+# 2. pegá ese hash en DEMO_PASSWORD_HASH:
+nano /opt/santosha/.caddy.env
+```
+
+> ⚠️ **Los `$` del hash van duplicados.** Docker Compose interpola variables dentro de los
+> `env_file`, y el hash bcrypt tiene formato `$2a$14$...`: sin escapar, Compose se come
+> `$14` y el resto como si fueran variables, el hash llega roto y **nadie puede entrar**.
+> Por eso el `sed` de arriba. En el archivo tiene que verse `$$2a$$14$$...`.
+
+Protegé los archivos con secretos:
+
+```bash
+chmod 600 /opt/santosha/.env /opt/santosha/.caddy.env
+```
 
 ### 4.4 Acceso del droplet a la imagen en GHCR
 

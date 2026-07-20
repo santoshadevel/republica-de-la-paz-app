@@ -2,8 +2,10 @@
 # Sirve los estáticos de public/ (montados desde el volumen `webroot`) y pasa
 # las peticiones PHP a php-fpm (servicio `app`, puerto 9000).
 #
-# El dominio y el email de ACME llegan por variables de entorno definidas en el
-# .env del droplet (APP_DOMAIN, ACME_EMAIL).
+# Las variables llegan por el archivo /opt/santosha/.caddy.env (ver docs/DEPLOY.md).
+# Se usa un env_file separado del .env de Laravel a propósito: así el hash bcrypt
+# (que contiene `$`) no pasa por la interpolación de docker compose, y las
+# credenciales de la base no quedan expuestas en el contenedor de Caddy.
 
 {
 	email {$ACME_EMAIL}
@@ -13,11 +15,20 @@
 	root * /var/www/html/public
 	encode zstd gzip
 
+	# Entorno de demo: sólo entra quien tiene la contraseña.
+	# Generar el hash con:
+	#   docker run --rm caddy:2-alpine caddy hash-password --plaintext 'TU_PASSWORD'
+	basic_auth {
+		{$DEMO_USER} {$DEMO_PASSWORD_HASH}
+	}
+
 	php_fastcgi app:9000
 
 	file_server
 
 	header {
+		# Es un demo: que no lo indexe ningún buscador.
+		X-Robots-Tag "noindex, nofollow, noarchive"
 		X-Content-Type-Options nosniff
 		X-Frame-Options SAMEORIGIN
 		Referrer-Policy strict-origin-when-cross-origin

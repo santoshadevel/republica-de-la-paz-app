@@ -1,12 +1,14 @@
 # Docker Compose de PRODUCCIÓN (usado también por el entorno DEV desplegado).
 #
 # Vive en el droplet, en /opt/santosha/. No buildea nada: descarga la imagen ya
-# publicada en GHCR por el workflow de GitHub Actions. Dos servicios:
-#   - app   : php-fpm con el código + assets horneados. Apunta al MySQL administrado.
-#   - caddy : reverse proxy con TLS automático; sirve public/ y proxya PHP a `app`.
+# publicada en GHCR por el workflow de GitHub Actions. Tres servicios:
+#   - app       : php-fpm con el código + assets horneados. Migra y cachea al arrancar.
+#   - scheduler : corre `schedule:work` (p. ej. memberships:expire, diario 00:10).
+#   - caddy     : reverse proxy con TLS automático; sirve public/ y proxya PHP a `app`.
 #
 # El MySQL NO corre acá: es el cluster administrado de DigitalOcean.
-# Variables sensibles y de entorno se leen de /opt/santosha/.env (ver .env.prod.example).
+# Config de Laravel: /opt/santosha/.env        (ver .env.prod.example)
+# Config de Caddy:   /opt/santosha/.caddy.env  (dominio, email ACME y basic auth)
 
 name: santosha
 
@@ -17,6 +19,7 @@ services:
     environment:
       # Solo lo que necesita el entrypoint (shell) para esperar la DB.
       # El resto de la config la lee Laravel del .env montado abajo.
+      APP_ROLE: web
       DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT:-3306}
     volumes:
@@ -24,6 +27,23 @@ services:
       - ./ca-certificate.crt:/etc/ssl/certs/mysql-ca.crt:ro   # CA del cluster MySQL
       - webroot:/webroot                                      # public/ publicado para Caddy
       - storage:/var/www/html/storage                         # uploads + logs persistentes
+    networks:
+      - internal
+
+  scheduler:
+    image: ${APP_IMAGE}
+    restart: unless-stopped
+    depends_on:
+      - app
+    environment:
+      APP_ROLE: scheduler   # no migra ni cachea: de eso se encarga `app`
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT:-3306}
+    command: ["php", "artisan", "schedule:work"]
+    volumes:
+      - ./.env:/var/www/html/.env:ro
+      - ./ca-certificate.crt:/etc/ssl/certs/mysql-ca.crt:ro
+      - storage:/var/www/html/storage
     networks:
       - internal
 
@@ -35,9 +55,8 @@ services:
     ports:
       - "80:80"
       - "443:443"
-    environment:
-      APP_DOMAIN: ${APP_DOMAIN}
-      ACME_EMAIL: ${ACME_EMAIL}
+    env_file:
+      - ./.caddy.env      # APP_DOMAIN, ACME_EMAIL, DEMO_USER, DEMO_PASSWORD_HASH
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - webroot:/var/www/html/public:ro          # estáticos servidos por Caddy
